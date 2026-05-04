@@ -1,8 +1,15 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
-import { nanoid } from 'nanoid'
+import { createClient } from '@supabase/supabase-js'
 import type { Quiz, Question, Option, LogicRule } from '@markquiz/shared'
+
+async function createServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  )
+}
 
 // ─── Public quiz fetch by slug ───────────────────────
 
@@ -64,7 +71,6 @@ export async function createQuizSession(quizId: string) {
   const { data, error } = await supabase
     .from('quiz_sessions')
     .insert({
-      id: nanoid(),
       quiz_id: quizId,
       started_at: new Date().toISOString(),
     })
@@ -89,7 +95,6 @@ export async function submitAnswer(params: {
   const supabase = await createServiceClient()
 
   const { error } = await supabase.from('answers').insert({
-    id: nanoid(),
     session_id: params.sessionId,
     question_id: params.questionId,
     option_ids: params.optionIds ?? [],
@@ -119,7 +124,6 @@ export async function submitLead(params: {
 
   // Insert lead
   const { error } = await supabase.from('leads').insert({
-    id: nanoid(),
     quiz_id: params.quizId,
     session_id: params.sessionId,
     name: params.name ?? null,
