@@ -1,10 +1,18 @@
 'use server'
 
-import { createServiceClient } from '@/lib/supabase/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createSsrClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { nanoid } from 'nanoid'
 
 const BUCKET = 'quiz-images'
+
+function createAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  )
+}
 
 /**
  * Загрузка картинки вопроса в Supabase Storage.
@@ -15,7 +23,7 @@ export async function uploadQuestionImage(formData: FormData): Promise<{ url?: s
   if (!file) return { error: 'Файл не передан' }
 
   // Авторизация: только владелец может загружать
-  const supabaseAuth = await createClient()
+  const supabaseAuth = await createSsrClient()
   const { data: { user } } = await supabaseAuth.auth.getUser()
   if (!user) return { error: 'Нужна авторизация' }
 
@@ -25,7 +33,7 @@ export async function uploadQuestionImage(formData: FormData): Promise<{ url?: s
   const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
   const path = `${user.id}/${nanoid()}.${ext}`
 
-  const supabase = await createServiceClient()
+  const supabase = createAdmin()
   const buffer = Buffer.from(await file.arrayBuffer())
 
   const { error } = await supabase.storage

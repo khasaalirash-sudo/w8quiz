@@ -75,14 +75,30 @@ export const useEditorStore = create<EditorState>()(
     addQuestion: (type) => set((s) => {
       if (!s.quiz) return
       const id = crypto.randomUUID()
+      const defaultSettings: Question['settings'] =
+        type === 'lead_form'
+          ? {
+              leadForm: {
+                title: 'Оставьте контакты',
+                subtitle: 'Менеджер свяжется с вами',
+                buttonText: 'Отправить',
+                fields: [
+                  { id: crypto.randomUUID(), type: 'name', label: 'Имя', placeholder: 'Имя', required: true },
+                  { id: crypto.randomUUID(), type: 'phone', label: 'Телефон', placeholder: '+7 ...', required: true },
+                  { id: crypto.randomUUID(), type: 'email', label: 'Email', placeholder: 'you@example.com', required: false },
+                ],
+                privacyText: 'Нажимая кнопку, вы соглашаетесь с обработкой персональных данных',
+              },
+            }
+          : {}
       const newQ: Question = {
         id,
         quiz_id: s.quiz.id,
         type,
-        title: '',
+        title: type === 'lead_form' ? 'Контакты' : '',
         position: s.questions.length,
-        settings: {},
-        is_required: false,
+        settings: defaultSettings,
+        is_required: type === 'lead_form',
         created_at: new Date().toISOString(),
       }
       s.questions.push(newQ)
