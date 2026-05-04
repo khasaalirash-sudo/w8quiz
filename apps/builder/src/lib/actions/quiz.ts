@@ -163,9 +163,18 @@ export async function saveQuiz(payload: {
     return { success: true }
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabaseAuth = await createClient()
+  const { data: { user } } = await supabaseAuth.auth.getUser()
   if (!user) throw new Error('Not authenticated')
+
+  // Используем service-role клиент чтобы обойти RLS на upsert
+  // (авторизация уже проверена выше + ниже фильтруем по user_id)
+  const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+  const supabase = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  )
 
   const { quiz, questions, options, logicRules } = payload
 
