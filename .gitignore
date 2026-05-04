@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+.svelte-kit/
+dist/
+out/
+build/
+*.tsbuildinfo
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Editor
+.DS_Store
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Turbo
+.turbo/
+
+# Logs
+*.log

@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --accent: 99 102 241;
+    /* accent-500 in RGB */
+  }
+
+  * {
+    @apply border-neutral-200;
+  }
+
+  body {
+    @apply font-sans;
+  }
+
+  /* Scrollbar minimalistic */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Стеклянный фон для панелей */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/60;
+  }
+}
