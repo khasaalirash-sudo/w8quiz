@@ -1,11 +1,14 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+
+interface CookieToSet {
+  name: string
+  value: string
+  options?: CookieOptions
+}
 
 /**
  * Supabase клиент для Server Components, Server Actions и Route Handlers.
- * Управляет сессией через cookie-store Next.js.
- *
- * ВАЖНО: каждый запрос создаёт новый экземпляр клиента, не переиспользовать.
  */
 export async function createClient() {
   const cookieStore = await cookies()
@@ -18,14 +21,13 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set({ name, value, ...options }),
             )
           } catch {
-            // Server Component не может устанавливать cookies.
-            // Это нормально — middleware обновит сессию.
+            // Server Component не может устанавливать cookies — это ок, middleware обновит сессию.
           }
         },
       },
@@ -34,9 +36,7 @@ export async function createClient() {
 }
 
 /**
- * Service-role клиент — обходит RLS.
- * Использовать ТОЛЬКО в серверном коде (Route Handlers, Server Actions).
- * НИКОГДА не передавать service_role ключ клиентскому коду.
+ * Service-role клиент — обходит RLS. Только серверный код.
  */
 export async function createServiceClient() {
   const cookieStore = await cookies()
@@ -46,13 +46,17 @@ export async function createServiceClient() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll(cookiesToSet) {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet: CookieToSet[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+              cookieStore.set({ name, value, ...options }),
             )
-          } catch { /* ignore in Server Components */ }
+          } catch {
+            /* ignore in Server Components */
+          }
         },
       },
     },
