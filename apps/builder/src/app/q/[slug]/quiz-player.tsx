@@ -11,7 +11,7 @@ interface QuizPlayerProps {
 
 export function QuizPlayer({ data }: QuizPlayerProps) {
   const { quiz, questions, options, logicRules } = data
-  const accentColor = quiz.settings.accentColor ?? '#6C5CE7'
+  const accentColor = quiz.settings.accentColor ?? '#d42e5b'
 
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState(0)
@@ -161,8 +161,8 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
   if (finished) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 p-10 max-w-md w-full text-center">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl shadow-neutral-200/60 p-10 max-w-md w-full text-center border border-neutral-100">
           <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
@@ -180,7 +180,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   if (!question) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* ── Header ── */}
       <header className="pt-8 pb-4 px-4 text-center">
         <h1 className="text-lg font-semibold text-neutral-900">{quiz.title}</h1>
@@ -208,7 +208,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
       {/* ── Question Card ── */}
       <div className="flex-1 flex items-start justify-center px-4 pt-6 pb-8">
-        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 p-8 max-w-lg w-full">
+        <div className="bg-white rounded-2xl shadow-xl shadow-neutral-200/60 p-8 max-w-lg w-full border border-neutral-100">
           {(question.settings as { imageUrl?: string } | null)?.imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -232,17 +232,19 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                   <button
                     key={opt.id}
                     onClick={() => handleSingleSelect(opt.id)}
+                    style={selected ? { borderColor: accentColor, backgroundColor: `${accentColor}10`, color: accentColor } : undefined}
                     className={`w-full text-left px-5 py-3.5 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${selected
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                        ? ''
                         : 'border-neutral-100 hover:border-neutral-200 hover:bg-neutral-50 text-neutral-700'
                       }`}
                   >
                     <span className="flex items-center gap-3">
                       <span
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selected ? 'border-indigo-500' : 'border-neutral-300'
+                        style={selected ? { borderColor: accentColor } : undefined}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selected ? '' : 'border-neutral-300'
                           }`}
                       >
-                        {selected && <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
+                        {selected && <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: accentColor }} />}
                       </span>
                       {opt.text}
                     </span>
@@ -262,14 +264,16 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                     <button
                       key={opt.id}
                       onClick={() => handleMultipleToggle(opt.id)}
+                      style={selected ? { borderColor: accentColor, backgroundColor: `${accentColor}10`, color: accentColor } : undefined}
                       className={`w-full text-left px-5 py-3.5 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${selected
-                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                          ? ''
                           : 'border-neutral-100 hover:border-neutral-200 hover:bg-neutral-50 text-neutral-700'
                         }`}
                     >
                       <span className="flex items-center gap-3">
                         <span
-                          className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${selected ? 'border-indigo-500 bg-indigo-500' : 'border-neutral-300'
+                          style={selected ? { borderColor: accentColor, backgroundColor: accentColor } : undefined}
+                          className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${selected ? '' : 'border-neutral-300'
                             }`}
                         >
                           {selected && (
@@ -303,7 +307,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                 onChange={(e) => setTextValue(e.target.value)}
                 placeholder="Введите ваш ответ..."
                 rows={4}
-                className="w-full border-2 border-neutral-100 rounded-xl px-4 py-3 text-sm text-neutral-800 placeholder:text-neutral-300 focus:border-indigo-400 focus:outline-none resize-none transition-colors"
+                className="w-full border-2 border-neutral-100 rounded-xl px-4 py-3 text-sm text-neutral-800 placeholder:text-neutral-300 focus:border-neutral-400 focus:outline-none resize-none transition-colors"
               />
               <button
                 onClick={handleNext}
@@ -334,7 +338,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                       required={field.required}
                       value={leadData[field.id] || ''}
                       onChange={(e) => setLeadData((prev) => ({ ...prev, [field.id]: e.target.value }))}
-                      className="w-full border-2 border-neutral-100 rounded-xl px-4 py-3 text-sm text-neutral-800 placeholder:text-neutral-300 focus:border-indigo-400 focus:outline-none transition-colors"
+                      className="w-full border-2 border-neutral-100 rounded-xl px-4 py-3 text-sm text-neutral-800 placeholder:text-neutral-300 focus:border-neutral-400 focus:outline-none transition-colors"
                     />
                   </div>
                 ))}

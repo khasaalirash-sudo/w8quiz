@@ -9,7 +9,7 @@ import { isDevMode, getDevQuizzes, getDevQuizPayload } from '@/lib/dev-mode'
 // ─── Quiz CRUD ───────────────────────────────────────
 
 const DEFAULT_SETTINGS: QuizSettings = {
-  accentColor: '#6C5CE7',
+  accentColor: '#d42e5b',
   showProgressBar: true,
   showQuestionCount: true,
   transition: 'slide',

@@ -1,7 +1,13 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
+import { Raleway } from 'next/font/google'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
+
+const raleway = Raleway({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
@@ -13,8 +19,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="bg-neutral-50 text-neutral-900 antialiased">
+    <html lang="ru" className={`${raleway.variable} ${GeistMono.variable}`}>
+      <body className="bg-neutral-50 text-neutral-900 antialiased font-sans">
         {children}
       </body>
     </html>
