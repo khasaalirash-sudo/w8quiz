@@ -74,7 +74,7 @@ export const useEditorStore = create<EditorState>()(
 
     addQuestion: (type) => set((s) => {
       if (!s.quiz) return
-      const id = nanoid()
+      const id = crypto.randomUUID()
       const newQ: Question = {
         id,
         quiz_id: s.quiz.id,
@@ -87,7 +87,7 @@ export const useEditorStore = create<EditorState>()(
       }
       s.questions.push(newQ)
       s.options[id] = type === 'single' || type === 'multiple'
-        ? [{ id: nanoid(), question_id: id, text: '', position: 0 }]
+        ? [{ id: crypto.randomUUID(), question_id: id, text: '', position: 0 }]
         : []
       s.selectedQuestionId = id
       s.isDirty = true
@@ -127,7 +127,7 @@ export const useEditorStore = create<EditorState>()(
     addOption: (questionId) => set((s) => {
       const opts = s.options[questionId] ?? []
       opts.push({
-        id: nanoid(),
+        id: crypto.randomUUID(),
         question_id: questionId,
         text: '',
         position: opts.length,
@@ -166,7 +166,7 @@ export const useEditorStore = create<EditorState>()(
 
     addLogicRule: (rule) => set((s) => {
       if (!s.quiz) return
-      s.logicRules.push({ ...rule, id: nanoid(), quiz_id: s.quiz.id })
+      s.logicRules.push({ ...rule, id: crypto.randomUUID(), quiz_id: s.quiz.id })
       s.isDirty = true
     }),
 

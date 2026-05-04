@@ -216,7 +216,10 @@ export async function saveQuiz(payload: {
       })),
       { onConflict: 'id' },
     )
-    if (error) console.error('[saveQuiz] questions upsert:', error)
+    if (error) {
+      console.error('[saveQuiz] questions upsert:', error)
+      throw new Error(`questions: ${error.message}`)
+    }
   }
 
   // 3. Upsert options
