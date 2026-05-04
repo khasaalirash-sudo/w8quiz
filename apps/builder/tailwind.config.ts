@@ -7,22 +7,22 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'monospace'],
       },
       colors: {
-        // Акцентный цвет платформы — индиго
+        // Бренд W8 Shipping — малиновый
         accent: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
+          50: '#fdf2f5',
+          100: '#fce7ed',
+          200: '#facfdb',
+          300: '#f5a8bc',
+          400: '#ed7493',
+          500: '#e3004f',
+          600: '#d42e5b',
+          700: '#b01e48',
+          800: '#931c40',
+          900: '#7d1c3b',
         },
         // Нейтральные тона для UI
         neutral: {
