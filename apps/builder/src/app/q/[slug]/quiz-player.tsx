@@ -209,6 +209,14 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
       {/* ── Question Card ── */}
       <div className="flex-1 flex items-start justify-center px-4 pt-6 pb-8">
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 p-8 max-w-lg w-full">
+          {(question.settings as { imageUrl?: string } | null)?.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={(question.settings as { imageUrl?: string }).imageUrl!}
+              alt=""
+              className="w-full h-48 object-cover rounded-2xl mb-5"
+            />
+          )}
           <h2 className="text-xl font-bold text-neutral-900 mb-1">{question.title}</h2>
           {question.description && (
             <p className="text-sm text-neutral-400 mb-6">{question.description}</p>

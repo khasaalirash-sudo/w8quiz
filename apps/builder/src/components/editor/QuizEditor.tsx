@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState, useRef } from 'react'
 import { useEditorStore, selectSelectedQuestion } from '@/store/editorStore'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { saveQuiz } from '@/lib/actions/quiz'
+import { uploadQuestionImage } from '@/lib/actions/upload'
 import type { Quiz, Question, Option, LogicRule, QuestionType } from '@markquiz/shared'
 import { QUESTION_TYPE_ENABLED } from '@markquiz/shared'
 
@@ -666,7 +667,7 @@ function QuestionSettingsPanel({ question }: { question: Question }) {
         <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-3">
           Изображение
         </h3>
-        <ImageUpload questionId={question.id} />
+        <ImageUpload question={question} />
       </div>
     </div>
   )
@@ -674,30 +675,50 @@ function QuestionSettingsPanel({ question }: { question: Question }) {
 
 // ─── Image Upload with Drag & Drop ───────────────────
 
-function ImageUpload({ questionId }: { questionId: string }) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+function ImageUpload({ question }: { question: Question }) {
+  const updateQuestion = useEditorStore((s) => s.updateQuestion)
+  const settings = (question.settings ?? {}) as Record<string, unknown>
+  const savedUrl = (settings.imageUrl as string | undefined) ?? null
+
   const [isDragging, setIsDragging] = useState(false)
-  const [fileName, setFileName] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Reset image when switching questions
-  useEffect(() => {
-    setImageUrl(null)
-    setFileName(null)
-  }, [questionId])
+  const setImageUrl = (url: string | null) => {
+    const newSettings = { ...(question.settings ?? {}) } as Record<string, unknown>
+    if (url) newSettings.imageUrl = url
+    else delete newSettings.imageUrl
+    updateQuestion(question.id, { settings: newSettings as Question['settings'] })
+  }
 
-  const processFile = useCallback((file: File) => {
-    if (!file.type.startsWith('image/')) return
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Максимальный размер файла — 5 МБ')
+  const processFile = useCallback(async (file: File) => {
+    setError(null)
+    if (!file.type.startsWith('image/')) {
+      setError('Не картинка')
       return
     }
-    // Revoke old URL to avoid memory leaks
-    if (imageUrl) URL.revokeObjectURL(imageUrl)
-    const url = URL.createObjectURL(file)
-    setImageUrl(url)
-    setFileName(file.name)
-  }, [imageUrl])
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Файл больше 5 МБ')
+      return
+    }
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const result = await uploadQuestionImage(formData)
+      if (result.error) {
+        setError(result.error)
+      } else if (result.url) {
+        setImageUrl(result.url)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Ошибка загрузки')
+    } finally {
+      setIsUploading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.id])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -724,52 +745,28 @@ function ImageUpload({ questionId }: { questionId: string }) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) processFile(file)
-    // Reset input so same file can be re-selected
     e.target.value = ''
   }
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (imageUrl) URL.revokeObjectURL(imageUrl)
     setImageUrl(null)
-    setFileName(null)
   }
 
-  if (imageUrl) {
+  if (savedUrl) {
     return (
       <div className="relative group rounded-xl overflow-hidden border border-neutral-200">
-        <img
-          src={imageUrl}
-          alt="Изображение вопроса"
-          className="w-full h-40 object-cover"
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={savedUrl} alt="Изображение вопроса" className="w-full h-40 object-cover" />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-          <button
-            onClick={handleClick}
-            className="px-3 py-1.5 bg-white rounded-lg text-xs font-medium text-neutral-700 hover:bg-neutral-50 shadow-sm transition-all"
-          >
-            Заменить
+          <button onClick={handleClick} className="px-3 py-1.5 bg-white rounded-lg text-xs font-medium text-neutral-700 hover:bg-neutral-50 shadow-sm">
+            {isUploading ? 'Загрузка…' : 'Заменить'}
           </button>
-          <button
-            onClick={handleRemove}
-            className="px-3 py-1.5 bg-red-500 rounded-lg text-xs font-medium text-white hover:bg-red-600 shadow-sm transition-all"
-          >
+          <button onClick={handleRemove} className="px-3 py-1.5 bg-red-500 rounded-lg text-xs font-medium text-white hover:bg-red-600 shadow-sm">
             Удалить
           </button>
         </div>
-        {fileName && (
-          <div className="px-3 py-2 bg-neutral-50 border-t border-neutral-200 flex items-center gap-2">
-            <span className="text-xs text-neutral-500 truncate flex-1">{fileName}</span>
-            <span className="text-[10px] text-neutral-400">✓</span>
-          </div>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
+        <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
       </div>
     )
   }
@@ -781,18 +778,24 @@ function ImageUpload({ questionId }: { questionId: string }) {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${isDragging
-          ? 'border-accent-400 bg-accent-50 scale-[1.02]'
-          : 'border-neutral-200 hover:border-accent-300 hover:bg-neutral-50'
-          }`}
+        className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
+          isDragging
+            ? 'border-accent-400 bg-accent-50 scale-[1.02]'
+            : 'border-neutral-200 hover:border-accent-300 hover:bg-neutral-50'
+        } ${isUploading ? 'opacity-60 pointer-events-none' : ''}`}
       >
         <div className={`text-2xl mb-2 transition-transform ${isDragging ? 'scale-125' : ''}`}>
-          {isDragging ? '📥' : '🖼️'}
+          {isUploading ? '⏳' : isDragging ? '📥' : '🖼️'}
         </div>
         <p className="text-xs text-neutral-500">
-          {isDragging ? 'Отпустите для загрузки' : 'Перетащите или нажмите для загрузки'}
+          {isUploading
+            ? 'Загружается…'
+            : isDragging
+            ? 'Отпустите для загрузки'
+            : 'Перетащите или нажмите для загрузки'}
         </p>
         <p className="text-[10px] text-neutral-400 mt-1">PNG, JPG, WebP · до 5 МБ</p>
+        {error && <p className="text-[11px] text-red-600 mt-2">{error}</p>}
       </div>
       <input
         ref={inputRef}
