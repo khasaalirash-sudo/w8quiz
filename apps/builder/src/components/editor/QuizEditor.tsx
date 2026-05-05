@@ -133,7 +133,7 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
             </div>
 
             <div className="border-t border-neutral-100 pt-4 space-y-3">
-              <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Header / стартовый экран</h4>
+              <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Первый слайд квиза (старт)</h4>
 
               <div>
                 <label className="text-xs text-neutral-500 mb-1.5 block">Заголовок</label>
@@ -192,7 +192,7 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
             </div>
 
             <div className="border-t border-neutral-100 pt-4 space-y-3">
-              <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Последняя страница (Спасибо)</h4>
+              <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Последний слайд квиза (Спасибо)</h4>
 
               <div>
                 <label className="text-xs text-neutral-500 mb-1.5 block">Заголовок</label>
