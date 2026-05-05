@@ -54,6 +54,49 @@ export async function getLeads(quizId?: string): Promise<LeadWithQuiz[]> {
   })
 }
 
+export async function getLeadsForExport(quizId?: string): Promise<LeadWithQuiz[]> {
+  if (isDevMode()) return getDevLeads() as LeadWithQuiz[]
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data: userQuizzes } = await supabase
+    .from('quizzes')
+    .select('id, title, slug')
+    .eq('user_id', user.id)
+
+  if (!userQuizzes || userQuizzes.length === 0) return []
+
+  const quizIds = quizId
+    ? [quizId].filter((id) => userQuizzes.some((q) => q.id === id))
+    : userQuizzes.map((q) => q.id)
+
+  if (quizIds.length === 0) return []
+
+  const { data: leads, error } = await supabase
+    .from('leads')
+    .select('*')
+    .in('quiz_id', quizIds)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('[getLeadsForExport]', error)
+    return []
+  }
+
+  const quizMap = new Map(userQuizzes.map((q) => [q.id, q]))
+
+  return (leads ?? []).map((lead) => {
+    const quiz = quizMap.get(lead.quiz_id)
+    return {
+      ...lead,
+      quiz_title: quiz?.title ?? 'Удалённый квиз',
+      quiz_slug: quiz?.slug ?? '',
+    } as LeadWithQuiz
+  })
+}
+
 // ─── Analytics data ──────────────────────────────────
 
 export interface AnalyticsData {

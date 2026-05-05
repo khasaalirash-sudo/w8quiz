@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getLeads } from '@/lib/actions/leads'
 import { getQuizzes } from '@/lib/actions/quiz'
+import { LeadsExportButton } from './leads-export-button'
 
 export const metadata: Metadata = { title: 'Лиды' }
 
@@ -16,6 +17,7 @@ export default async function LeadsPage() {
             {leads.length} {leads.length === 1 ? 'контакт' : leads.length < 5 ? 'контакта' : 'контактов'}
           </p>
         </div>
+        <LeadsExportButton leads={leads} />
       </div>
 
       {/* ── Empty State ── */}
