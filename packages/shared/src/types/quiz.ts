@@ -36,12 +36,38 @@ export const ENABLED_QUESTION_TYPES: QuestionType[] = (
 export interface QuizSettings {
   /** Цвет акцента кнопок и выборов */
   accentColor: string
+  /** Заголовок стартового экрана */
+  headerTitle?: string
+  /** Подзаголовок стартового экрана */
+  headerSubtitle?: string
+  /** Текст CTA на стартовом экране */
+  startButtonText?: string
+  /** Фон стартового экрана */
+  startBackgroundUrl?: string
+  /** Изображение авто на стартовом экране */
+  startCarImageUrl?: string
+
+  /** Заголовок финального экрана */
+  finalTitle?: string
+  /** Основной текст финального экрана */
+  finalPrimaryText?: string
+  /** Дополнительный текст финального экрана */
+  finalSecondaryText?: string
+  /** Фон финального экрана */
+  finalBackgroundUrl?: string
+  /** Изображение авто на финальном экране */
+  finalCarImageUrl?: string
+
   /** URL логотипа для брендирования */
   logoUrl?: string
   /** Текст кнопки на финальном экране */
   resultButtonText?: string
   /** URL редиректа после отправки формы */
   redirectUrl?: string
+  /** Прямая ссылка на файл/Google Drive (показать рядом кнопку открытия/скачивания) */
+  resultFileUrl?: string
+  /** Подпись кнопки файла */
+  resultFileLabel?: string
   /** Показывать прогресс-бар */
   showProgressBar: boolean
   /** Показывать номер вопроса */

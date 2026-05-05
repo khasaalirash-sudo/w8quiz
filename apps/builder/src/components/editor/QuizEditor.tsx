@@ -122,15 +122,178 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  value={store.quiz?.settings.accentColor ?? '#6C5CE7'}
+                  value={store.quiz?.settings.accentColor ?? '#d42e5b'}
                   onChange={(e) => store.updateSettings({ accentColor: e.target.value })}
                   className="w-8 h-8 rounded-lg cursor-pointer border-0"
                 />
                 <span className="text-sm text-neutral-600 font-mono">
-                  {store.quiz?.settings.accentColor ?? '#6C5CE7'}
+                  {store.quiz?.settings.accentColor ?? '#d42e5b'}
                 </span>
               </div>
             </div>
+
+            <div className="border-t border-neutral-100 pt-4 space-y-3">
+              <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Header / стартовый экран</h4>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Заголовок</label>
+                <textarea
+                  value={store.quiz?.settings.headerTitle ?? ''}
+                  onChange={(e) => store.updateSettings({ headerTitle: e.target.value })}
+                  rows={2}
+                  placeholder="Покупай авто из США, вместе с W8 Shipping!"
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Подзаголовок</label>
+                <textarea
+                  value={store.quiz?.settings.headerSubtitle ?? ''}
+                  onChange={(e) => store.updateSettings({ headerSubtitle: e.target.value })}
+                  rows={2}
+                  placeholder="Ответьте на 3 вопроса..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Текст кнопки старта</label>
+                <input
+                  type="text"
+                  value={store.quiz?.settings.startButtonText ?? ''}
+                  onChange={(e) => store.updateSettings({ startButtonText: e.target.value })}
+                  placeholder="Получить подборку"
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">URL фона header</label>
+                <input
+                  type="url"
+                  value={store.quiz?.settings.startBackgroundUrl ?? ''}
+                  onChange={(e) => store.updateSettings({ startBackgroundUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">URL изображения авто header</label>
+                <input
+                  type="url"
+                  value={store.quiz?.settings.startCarImageUrl ?? ''}
+                  onChange={(e) => store.updateSettings({ startCarImageUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-neutral-100 pt-4 space-y-3">
+              <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Последняя страница (Спасибо)</h4>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Заголовок</label>
+                <input
+                  type="text"
+                  value={store.quiz?.settings.finalTitle ?? ''}
+                  onChange={(e) => store.updateSettings({ finalTitle: e.target.value })}
+                  placeholder="Спасибо!"
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Текст 1</label>
+                <textarea
+                  value={store.quiz?.settings.finalPrimaryText ?? ''}
+                  onChange={(e) => store.updateSettings({ finalPrimaryText: e.target.value })}
+                  rows={2}
+                  placeholder="На основе ваших ответов..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Текст 2</label>
+                <textarea
+                  value={store.quiz?.settings.finalSecondaryText ?? ''}
+                  onChange={(e) => store.updateSettings({ finalSecondaryText: e.target.value })}
+                  rows={2}
+                  placeholder="Наш эксперт свяжется с вами..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Текст главной кнопки</label>
+                <input
+                  type="text"
+                  value={store.quiz?.settings.resultButtonText ?? ''}
+                  onChange={(e) => store.updateSettings({ resultButtonText: e.target.value })}
+                  placeholder="Перейти в каталог авто"
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Ссылка главной кнопки</label>
+                <input
+                  type="url"
+                  value={store.quiz?.settings.redirectUrl ?? ''}
+                  onChange={(e) => store.updateSettings({ redirectUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Ссылка на файл (или Google Drive)</label>
+                <input
+                  type="url"
+                  value={store.quiz?.settings.resultFileUrl ?? ''}
+                  onChange={(e) => store.updateSettings({ resultFileUrl: e.target.value })}
+                  placeholder="https://drive.google.com/... или прямая ссылка"
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">Подпись ссылки/кнопки файла</label>
+                <input
+                  type="text"
+                  value={store.quiz?.settings.resultFileLabel ?? ''}
+                  onChange={(e) => store.updateSettings({ resultFileLabel: e.target.value })}
+                  placeholder="Скачать файл"
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">URL фона финального экрана</label>
+                <input
+                  type="url"
+                  value={store.quiz?.settings.finalBackgroundUrl ?? ''}
+                  onChange={(e) => store.updateSettings({ finalBackgroundUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-500 mb-1.5 block">URL изображения авто финального экрана</label>
+                <input
+                  type="url"
+                  value={store.quiz?.settings.finalCarImageUrl ?? ''}
+                  onChange={(e) => store.updateSettings({ finalCarImageUrl: e.target.value })}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="text-xs text-neutral-500 mb-1.5 block">Анимация</label>
               <select

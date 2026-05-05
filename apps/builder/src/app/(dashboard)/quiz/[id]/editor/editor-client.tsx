@@ -4,6 +4,7 @@ import { QuizEditor } from '@/components/editor/QuizEditor'
 import { publishQuiz } from '@/lib/actions/quiz'
 import { useState } from 'react'
 import type { Quiz, Question, Option, LogicRule } from '@markquiz/shared'
+import { useEditorStore } from '@/store/editorStore'
 
 interface EditorClientProps {
   quiz: Quiz
@@ -13,6 +14,9 @@ interface EditorClientProps {
 }
 
 export function EditorClient({ quiz, questions, options, logicRules }: EditorClientProps) {
+  const storeQuiz = useEditorStore((s) => s.quiz)
+  const updateQuizMeta = useEditorStore((s) => s.updateQuizMeta)
+
   const [publishedUrl, setPublishedUrl] = useState<string | null>(
     quiz.is_published && quiz.slug
       ? `${typeof window !== 'undefined' ? window.location.origin : ''}/q/${quiz.slug}`
@@ -49,9 +53,12 @@ export function EditorClient({ quiz, questions, options, logicRules }: EditorCli
           ← Квизы
         </a>
         <div className="h-5 w-px bg-neutral-200" />
-        <h1 className="text-sm font-medium text-neutral-900 flex-1 truncate">
-          {quiz.title}
-        </h1>
+        <input
+          value={storeQuiz?.title ?? quiz.title}
+          onChange={(e) => updateQuizMeta({ title: e.target.value } as Pick<Quiz, 'title' | 'description'>)}
+          className="text-sm font-medium text-neutral-900 flex-1 bg-transparent outline-none border border-transparent focus:border-neutral-200 rounded-md px-2 py-1"
+          placeholder="Название квиза"
+        />
         <div className="flex items-center gap-2">
           {publishedUrl && (
             <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">

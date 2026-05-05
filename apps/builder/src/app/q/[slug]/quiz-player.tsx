@@ -10,13 +10,29 @@ interface QuizPlayerProps {
 }
 
 export function QuizPlayer({ data }: QuizPlayerProps) {
-  const INTRO_BG = 'https://www.figma.com/api/mcp/asset/25afa5a0-3843-43a9-8aec-031ef6c3eb20'
-  const INTRO_CAR = 'https://www.figma.com/api/mcp/asset/d53696fd-955c-42fd-a21f-2c6dea477280'
-  const THANKS_BG = 'https://www.figma.com/api/mcp/asset/245614d9-8d2e-4b12-8829-f68299358d13'
-  const THANKS_CAR = 'https://www.figma.com/api/mcp/asset/6c65bcf5-4625-4ad3-9fe0-23666f83c653'
+  const DEFAULT_INTRO_BG = 'https://www.figma.com/api/mcp/asset/25afa5a0-3843-43a9-8aec-031ef6c3eb20'
+  const DEFAULT_INTRO_CAR = 'https://www.figma.com/api/mcp/asset/d53696fd-955c-42fd-a21f-2c6dea477280'
+  const DEFAULT_THANKS_BG = 'https://www.figma.com/api/mcp/asset/245614d9-8d2e-4b12-8829-f68299358d13'
+  const DEFAULT_THANKS_CAR = 'https://www.figma.com/api/mcp/asset/6c65bcf5-4625-4ad3-9fe0-23666f83c653'
 
   const { quiz, questions, options, logicRules } = data
   const accentColor = quiz.settings.accentColor ?? '#d42e5b'
+
+  const introBg = quiz.settings.startBackgroundUrl || DEFAULT_INTRO_BG
+  const introCar = quiz.settings.startCarImageUrl || DEFAULT_INTRO_CAR
+  const introTitle = quiz.settings.headerTitle || 'Покупай авто из США, вместе с W8 Shipping!'
+  const introSubtitle = quiz.settings.headerSubtitle || 'Ответьте на 3 вопроса - и получите подборку эксклюзивных и премиальных авто из США!'
+  const introButtonText = quiz.settings.startButtonText || 'Получить подборку'
+
+  const thanksBg = quiz.settings.finalBackgroundUrl || DEFAULT_THANKS_BG
+  const thanksCar = quiz.settings.finalCarImageUrl || DEFAULT_THANKS_CAR
+  const thanksTitle = quiz.settings.finalTitle || 'Спасибо!'
+  const thanksPrimaryText = quiz.settings.finalPrimaryText || 'На основе ваших ответов мы уже подбираем для вас самые лучшие варианты авто из США.'
+  const thanksSecondaryText = quiz.settings.finalSecondaryText || 'Наш эксперт свяжется с вами в течение рабочего дня и покажет реальные автомобили с аукционов, соответствующих вашему бюджету.'
+  const resultButtonText = quiz.settings.resultButtonText || 'Перейти в каталог авто'
+  const resultUrl = quiz.settings.redirectUrl || 'https://w8shipping.kz/'
+  const resultFileUrl = quiz.settings.resultFileUrl || ''
+  const resultFileLabel = quiz.settings.resultFileLabel || 'Скачать файл'
 
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [isStarted, setIsStarted] = useState(false)
@@ -171,11 +187,9 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   }
 
   if (finished) {
-    const catalogUrl = (quiz.settings as { catalogUrl?: string } | null)?.catalogUrl || 'https://w8shipping.kz/'
-
     return (
       <div className="min-h-screen relative overflow-hidden bg-[#d42e5b]">
-        <img src={THANKS_BG} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={thanksBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/70" />
 
         <div className="relative z-10 mx-auto max-w-[760px] px-5 pt-8 md:pt-10 text-center">
@@ -183,26 +197,46 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
           <div className="mt-6 bg-white rounded-[32px] md:rounded-[40px] shadow-[0_6px_40px_rgba(0,0,0,0.1)] min-h-[640px] md:min-h-[720px] px-5 md:px-12 pt-8 md:pt-12 relative overflow-hidden">
             <div className="text-3xl mb-3">✌</div>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-black">Спасибо!</h1>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-black">{thanksTitle}</h1>
             <p className="mt-5 text-base md:text-[28px] md:leading-[1.4] text-black">
-              На основе ваших ответов мы уже подбираем для вас самые лучшие варианты авто из США.
+              {thanksPrimaryText}
             </p>
             <p className="mt-4 text-base md:text-[28px] md:leading-[1.4] text-black">
-              Наш эксперт свяжется с вами в течение рабочего дня и покажет реальные автомобили с аукционов,
-              соответствующих вашему бюджету.
+              {thanksSecondaryText}
             </p>
 
             <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-3">
               <a
-                href={catalogUrl}
+                href={resultUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-3 px-8 h-14 rounded-full text-white font-semibold"
                 style={{ backgroundColor: accentColor }}
               >
-                Перейти в каталог авто
+                {resultButtonText}
                 <span className="h-7 w-7 rounded-full border border-white inline-flex items-center justify-center">→</span>
               </a>
+              {resultFileUrl && (
+                <>
+                  <a
+                    href={resultFileUrl}
+                    download
+                    className="inline-flex items-center justify-center gap-2 px-5 h-12 rounded-full border text-sm font-semibold"
+                    style={{ borderColor: accentColor, color: accentColor, backgroundColor: '#fff' }}
+                  >
+                    ⬇ {resultFileLabel}
+                  </a>
+                  <a
+                    href={resultFileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-5 h-12 rounded-full border text-sm font-semibold"
+                    style={{ borderColor: accentColor, color: accentColor, backgroundColor: '#fff' }}
+                  >
+                    🔗 Открыть ссылку
+                  </a>
+                </>
+              )}
               <a
                 href="https://wa.me/+77072570703"
                 target="_blank"
@@ -222,7 +256,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
             </div>
 
             <img
-              src={THANKS_CAR}
+              src={thanksCar}
               alt=""
               className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[420px] md:w-[740px] max-w-none"
             />
@@ -235,21 +269,21 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   if (!isStarted) {
     return (
       <div className="min-h-screen relative overflow-hidden bg-[#d42e5b]">
-        <img src={INTRO_BG} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={introBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/70" />
 
         <div className="relative z-10 h-full min-h-screen flex flex-col items-center text-center px-5 pt-8 md:pt-10">
           <div className="text-[#d42e5b] font-black text-6xl leading-none">w8</div>
 
           <h1 className="mt-7 text-white font-extrabold text-[40px] leading-[1.1] max-w-[560px] text-balance hidden md:block">
-            Покупай авто из США, вместе с W8 Shipping!
+            {introTitle}
           </h1>
           <h1 className="mt-7 text-white font-extrabold text-[46px] leading-[1.1] max-w-[560px] text-balance md:hidden">
-            Покупай авто из США, вместе с W8 Shipping!
+            {introTitle}
           </h1>
 
           <p className="mt-6 text-white text-lg md:text-[32px] md:leading-[1.45] max-w-[620px]">
-            Ответьте на 3 вопроса - и получите подборку эксклюзивных и премиальных авто из США!
+            {introSubtitle}
           </p>
 
           <button
@@ -257,11 +291,11 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
             className="mt-8 inline-flex items-center gap-3 px-8 h-[55px] rounded-full text-white text-base md:text-lg font-semibold"
             style={{ backgroundColor: accentColor }}
           >
-            Получить подборку
+            {introButtonText}
             <span className="h-7 w-7 rounded-full border border-white inline-flex items-center justify-center">→</span>
           </button>
 
-          <img src={INTRO_CAR} alt="" className="mt-auto w-[1200px] max-w-none -mb-10 md:-mb-16" />
+          <img src={introCar} alt="" className="mt-auto w-[1200px] max-w-none -mb-10 md:-mb-16" />
         </div>
       </div>
     )
