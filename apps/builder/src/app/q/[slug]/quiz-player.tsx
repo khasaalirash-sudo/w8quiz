@@ -88,12 +88,12 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
       setAnswers((prev) => ({ ...prev, [question.id]: optionId }))
       saveAnswer(question.id, [optionId])
 
-      setTimeout(() => {
-        const nextStep = getNextStep(question.id, optionId)
-        setCurrentStep((s) => Math.min(nextStep, totalSteps - 1))
-      }, 300)
+      const nextStep = getNextStep(question.id, optionId)
+      if (nextStep < totalSteps && nextStep !== currentStep) {
+        setCurrentStep(nextStep)
+      }
     },
-    [question, totalSteps, getNextStep, saveAnswer],
+    [question, totalSteps, getNextStep, saveAnswer, currentStep],
   )
 
   const handleMultipleToggle = useCallback(
@@ -123,7 +123,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
     }
 
     const nextStep = getNextStep(question.id)
-    if (nextStep < totalSteps) {
+    if (nextStep < totalSteps && nextStep !== currentStep) {
       setCurrentStep(nextStep)
     }
   }
@@ -269,19 +269,21 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
   if (!question) return null
 
-  const leadForm = (question.settings as { leadForm?: {
-    title?: string
-    subtitle?: string
-    buttonText?: string
-    privacyText?: string
-    fields: Array<{
-      id: string
-      type: 'name' | 'email' | 'phone' | 'custom_text'
-      label: string
-      placeholder?: string
-      required: boolean
-    }>
-  } } | null)?.leadForm
+  const leadForm = (question.settings as {
+    leadForm?: {
+      title?: string
+      subtitle?: string
+      buttonText?: string
+      privacyText?: string
+      fields: Array<{
+        id: string
+        type: 'name' | 'email' | 'phone' | 'custom_text'
+        label: string
+        placeholder?: string
+        required: boolean
+      }>
+    }
+  } | null)?.leadForm
   const isLead = question.type === 'lead_form' && !!leadForm
 
   return (
@@ -315,8 +317,8 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                     onClick={() => handleSingleSelect(opt.id)}
                     style={selected ? { borderColor: accentColor } : { borderColor: '#efefef' }}
                     className={`w-full text-left px-4 md:px-5 py-3 md:py-4 rounded-[36px] border bg-[#f9f8ff] transition text-black text-base md:text-2xl font-medium flex items-center justify-between ${selected
-                        ? 'font-semibold'
-                        : ''
+                      ? 'font-semibold'
+                      : ''
                       }`}
                   >
                     <span>{opt.text}</span>
@@ -340,8 +342,8 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                       onClick={() => handleMultipleToggle(opt.id)}
                       style={selected ? { borderColor: accentColor } : { borderColor: '#efefef' }}
                       className={`w-full text-left px-4 md:px-5 py-3 md:py-4 rounded-[36px] border bg-[#f9f8ff] transition text-black text-base md:text-2xl font-medium flex items-center justify-between ${selected
-                          ? 'font-semibold'
-                          : ''
+                        ? 'font-semibold'
+                        : ''
                         }`}
                     >
                       <span>{opt.text}</span>
@@ -352,14 +354,6 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                   )
                 })}
               </div>
-              <button
-                onClick={handleNext}
-                disabled={!answers[question.id] || (answers[question.id] as string[]).length === 0}
-                className="mt-6 w-full h-[55px] rounded-full text-white font-semibold text-base md:text-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ backgroundColor: accentColor }}
-              >
-                Далее
-              </button>
             </>
           )}
 
@@ -372,13 +366,6 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                 rows={4}
                 className="w-full border border-[#d5d5d5] bg-[#f9f8ff] rounded-[20px] px-4 py-3 text-base md:text-xl text-black placeholder:text-neutral-500 focus:border-[#bdbdbd] focus:outline-none resize-none transition-colors"
               />
-              <button
-                onClick={handleNext}
-                className="mt-6 w-full h-[55px] rounded-full text-white font-semibold text-base md:text-xl transition-all"
-                style={{ backgroundColor: accentColor }}
-              >
-                Далее
-              </button>
             </>
           )}
 
@@ -448,10 +435,13 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
           )}
         </div>
 
-        {!isLead && (
+        {!isLead && question.type !== 'single' && (
           <button
             onClick={handleNext}
-            disabled={question.type === 'single' ? !answers[question.id] : false}
+            disabled={
+              (question.type === 'multiple' && (!answers[question.id] || (answers[question.id] as string[]).length === 0)) ||
+              (question.type === 'text' && textValue.trim().length === 0)
+            }
             className="mt-6 w-full h-[55px] md:h-[64px] rounded-full text-white font-semibold text-base md:text-2xl transition-all disabled:opacity-50"
             style={{ backgroundColor: accentColor }}
           >
@@ -476,19 +466,6 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
           </div>
         </div>
       </div>
-
-      {question.type === 'single' && (
-        <div className="hidden">
-          <button
-            onClick={handleNext}
-            disabled={!answers[question.id]}
-            className="px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white"
-            style={{ backgroundColor: accentColor }}
-          >
-            Далее →
-          </button>
-        </div>
-      )}
     </div>
   )
 }
