@@ -5,16 +5,15 @@ import { createQuizSession, submitAnswer, submitLead } from '@/lib/actions/publi
 import type { PublicQuizData } from '@/lib/actions/public'
 import type { Question } from '@markquiz/shared'
 
-// W8 Shipping logo — styled text version matching the Figma design
 // W8 Shipping logo — exact SVG from brand assets
-function W8Logo() {
+function W8Logo({ white = false }: { white?: boolean }) {
   return (
     <img
       src="/w8-logo-wide.svg"
       alt="W8 Shipping"
       width={137}
       height={55}
-      className="select-none"
+      className={white ? 'select-none brightness-0 invert' : 'select-none'}
     />
   )
 }
@@ -363,7 +362,9 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
   return (
     <div className="min-h-screen bg-[#d42e5b] px-5 pt-8 md:pt-10 text-center">
-      <div className="text-white font-black text-6xl leading-none mb-4">w8</div>
+      <div className="mb-4 flex justify-center">
+        <W8Logo white />
+      </div>
 
       <div className="mx-auto max-w-[760px] bg-white rounded-t-[40px] shadow-[0_6px_40px_rgba(0,0,0,0.1)] min-h-[740px] md:min-h-[760px] px-5 md:px-10 pt-7 md:pt-10 flex flex-col">
         <h2 className="text-black font-extrabold text-3xl md:text-[40px] leading-[1.15] text-balance">
