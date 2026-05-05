@@ -5,15 +5,37 @@ import { createQuizSession, submitAnswer, submitLead } from '@/lib/actions/publi
 import type { PublicQuizData } from '@/lib/actions/public'
 import type { Question } from '@markquiz/shared'
 
+// W8 Shipping logo — styled text version matching the Figma design
+function W8Logo() {
+  return (
+    <div className="flex items-center gap-2 select-none">
+      <span
+        className="font-extrabold text-[42px] leading-none tracking-tight"
+        style={{ color: '#d42e5b', fontFamily: "'Nunito Sans', sans-serif" }}
+      >
+        w8
+      </span>
+      <span
+        className="text-white text-base font-light tracking-widest uppercase"
+        style={{ fontFamily: "'Nunito Sans', sans-serif", letterSpacing: '0.25em', marginTop: 4 }}
+      >
+        shipping
+      </span>
+    </div>
+  )
+}
+
 interface QuizPlayerProps {
   data: PublicQuizData
 }
 
 export function QuizPlayer({ data }: QuizPlayerProps) {
-  const DEFAULT_INTRO_BG = 'https://www.figma.com/api/mcp/asset/25afa5a0-3843-43a9-8aec-031ef6c3eb20'
-  const DEFAULT_INTRO_CAR = 'https://www.figma.com/api/mcp/asset/d53696fd-955c-42fd-a21f-2c6dea477280'
-  const DEFAULT_THANKS_BG = 'https://www.figma.com/api/mcp/asset/245614d9-8d2e-4b12-8829-f68299358d13'
-  const DEFAULT_THANKS_CAR = 'https://www.figma.com/api/mcp/asset/6c65bcf5-4625-4ad3-9fe0-23666f83c653'
+  const DEFAULT_INTRO_BG = 'https://www.figma.com/api/mcp/asset/60bfc1ce-85ba-4c3d-bf86-13bd829986fe'
+  const DEFAULT_INTRO_CAR = 'https://www.figma.com/api/mcp/asset/55b82c09-de7c-4ea5-85b8-4a3b1ac49eed'
+  const DEFAULT_THANKS_BG = 'https://www.figma.com/api/mcp/asset/88184ce4-0f14-4c43-8b94-07b2412fe96e'
+  const DEFAULT_THANKS_CAR = 'https://www.figma.com/api/mcp/asset/9d79789a-9d1c-433d-9142-4b878331c104'
+  const DEFAULT_WA_ICON = 'https://www.figma.com/api/mcp/asset/da489e22-d3af-40e4-82e8-658e4c4f82ac'
+  const DEFAULT_IG_ICON = 'https://www.figma.com/api/mcp/asset/3ef523b3-39fa-4320-ba86-4616de3edd9f'
 
   const { quiz, questions, options, logicRules } = data
   const accentColor = quiz.settings.accentColor ?? '#d42e5b'
@@ -188,77 +210,96 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
   if (finished) {
     return (
-      <div className="min-h-screen relative overflow-hidden bg-[#d42e5b]">
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Background */}
         <img src={thanksBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-black/80" />
 
-        <div className="relative z-10 mx-auto max-w-[760px] px-5 pt-8 md:pt-10 text-center">
-          <div className="text-[#d42e5b] font-black text-6xl leading-none">w8</div>
+        {/* Logo */}
+        <div className="relative z-10 pt-10 flex justify-center">
+          <W8Logo />
+        </div>
 
-          <div className="mt-6 bg-white rounded-[32px] md:rounded-[40px] shadow-[0_6px_40px_rgba(0,0,0,0.1)] min-h-[640px] md:min-h-[720px] px-5 md:px-12 pt-8 md:pt-12 relative overflow-hidden">
-            <div className="text-3xl mb-3">✌</div>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-black">{thanksTitle}</h1>
-            <p className="mt-5 text-base md:text-[28px] md:leading-[1.4] text-black">
+        {/* White card */}
+        <div className="relative z-10 mx-auto max-w-[660px] mt-6 px-4">
+          <div className="bg-white rounded-[40px] shadow-[0_6px_40px_rgba(0,0,0,0.1)] px-6 md:px-14 pt-10 pb-[220px] md:pb-[260px] relative overflow-hidden text-center">
+            {/* Icon */}
+            <div className="flex justify-center mb-4">
+              <span className="text-4xl">✌️</span>
+            </div>
+
+            <h1 className="text-[40px] md:text-[48px] font-extrabold text-black leading-[1.1]">
+              {thanksTitle}
+            </h1>
+
+            <p className="mt-5 text-base md:text-lg leading-[1.55] text-black max-w-[438px] mx-auto">
               {thanksPrimaryText}
             </p>
-            <p className="mt-4 text-base md:text-[28px] md:leading-[1.4] text-black">
+            <p className="mt-4 text-base md:text-lg leading-[1.55] text-black max-w-[520px] mx-auto">
               {thanksSecondaryText}
             </p>
 
-            <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-3">
+            {/* Buttons row */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <a
                 href={resultUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-3 px-8 h-14 rounded-full text-white font-semibold"
+                className="inline-flex items-center gap-3 px-7 h-[55px] rounded-full text-white text-base font-semibold"
                 style={{ backgroundColor: accentColor }}
               >
                 {resultButtonText}
-                <span className="h-7 w-7 rounded-full border border-white inline-flex items-center justify-center">→</span>
+                <span className="h-7 w-[37px] rounded-full border border-white inline-flex items-center justify-center text-sm">→</span>
               </a>
+
               {resultFileUrl && (
                 <>
                   <a
                     href={resultFileUrl}
                     download
-                    className="inline-flex items-center justify-center gap-2 px-5 h-12 rounded-full border text-sm font-semibold"
-                    style={{ borderColor: accentColor, color: accentColor, backgroundColor: '#fff' }}
+                    className="inline-flex items-center gap-2 px-5 h-[55px] rounded-full border text-sm font-semibold"
+                    style={{ borderColor: accentColor, color: accentColor }}
                   >
-                    ⬇ {resultFileLabel}
+                    ↓ {resultFileLabel}
                   </a>
                   <a
                     href={resultFileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-5 h-12 rounded-full border text-sm font-semibold"
-                    style={{ borderColor: accentColor, color: accentColor, backgroundColor: '#fff' }}
+                    className="inline-flex items-center gap-2 px-5 h-[55px] rounded-full border text-sm font-semibold"
+                    style={{ borderColor: accentColor, color: accentColor }}
                   >
-                    🔗 Открыть ссылку
+                    ↗ Открыть ссылку
                   </a>
                 </>
               )}
+
               <a
                 href="https://wa.me/+77072570703"
                 target="_blank"
                 rel="noreferrer"
-                className="h-12 w-12 rounded-full border border-[#d42e5b] bg-white inline-flex items-center justify-center text-lg"
+                className="h-[46px] w-[46px] rounded-full border-2 bg-white overflow-hidden inline-flex items-center justify-center flex-shrink-0"
+                style={{ borderColor: accentColor }}
               >
-                🟢
+                <img src={DEFAULT_WA_ICON} alt="WhatsApp" className="w-[33px] h-[33px] object-contain" />
               </a>
+
               <a
                 href="https://instagram.com/w8shipping_kazakhstan"
                 target="_blank"
                 rel="noreferrer"
-                className="h-12 w-12 rounded-full border border-[#d42e5b] bg-white inline-flex items-center justify-center text-lg"
+                className="h-[46px] w-[46px] rounded-full border-2 bg-white overflow-hidden inline-flex items-center justify-center flex-shrink-0"
+                style={{ borderColor: accentColor }}
               >
-                📸
+                <img src={DEFAULT_IG_ICON} alt="Instagram" className="w-[33px] h-[33px] object-contain" />
               </a>
             </div>
 
+            {/* Car image pinned to bottom-left */}
             <img
               src={thanksCar}
               alt=""
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[420px] md:w-[740px] max-w-none"
+              className="absolute bottom-0 left-0 w-[420px] md:w-[734px] max-w-none -scale-x-100"
             />
           </div>
         </div>
@@ -268,34 +309,40 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
 
   if (!isStarted) {
     return (
-      <div className="min-h-screen relative overflow-hidden bg-[#d42e5b]">
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Background */}
         <img src={introBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black/70" />
+        <div className="absolute inset-0 bg-black/80" />
 
-        <div className="relative z-10 h-full min-h-screen flex flex-col items-center text-center px-5 pt-8 md:pt-10">
-          <div className="text-[#d42e5b] font-black text-6xl leading-none">w8</div>
+        <div className="relative z-10 flex flex-col items-center text-center px-5 pt-10 min-h-screen">
+          {/* Logo */}
+          <W8Logo />
 
-          <h1 className="mt-7 text-white font-extrabold text-[40px] leading-[1.1] max-w-[560px] text-balance hidden md:block">
+          <h1 className="mt-8 text-white font-extrabold text-[40px] md:text-[48px] leading-[1.1] max-w-[560px]">
             {introTitle}
           </h1>
-          <h1 className="mt-7 text-white font-extrabold text-[46px] leading-[1.1] max-w-[560px] text-balance md:hidden">
-            {introTitle}
-          </h1>
 
-          <p className="mt-6 text-white text-lg md:text-[32px] md:leading-[1.45] max-w-[620px]">
+          <p className="mt-5 text-white text-base md:text-lg leading-[1.55] max-w-[438px]">
             {introSubtitle}
           </p>
 
           <button
             onClick={() => setIsStarted(true)}
-            className="mt-8 inline-flex items-center gap-3 px-8 h-[55px] rounded-full text-white text-base md:text-lg font-semibold"
+            className="mt-8 inline-flex items-center gap-3 px-8 h-[55px] rounded-full text-white text-base font-semibold"
             style={{ backgroundColor: accentColor }}
           >
             {introButtonText}
-            <span className="h-7 w-7 rounded-full border border-white inline-flex items-center justify-center">→</span>
+            <span className="h-7 w-[37px] rounded-full border border-white inline-flex items-center justify-center text-sm">→</span>
           </button>
 
-          <img src={introCar} alt="" className="mt-auto w-[1200px] max-w-none -mb-10 md:-mb-16" />
+          {/* Car image — large, overflows horizontally, pinned to bottom */}
+          <div className="mt-auto w-full overflow-hidden">
+            <img
+              src={introCar}
+              alt=""
+              className="w-[900px] md:w-[1525px] max-w-none mx-auto -scale-x-100"
+            />
+          </div>
         </div>
       </div>
     )
