@@ -6,22 +6,16 @@ import type { PublicQuizData } from '@/lib/actions/public'
 import type { Question } from '@markquiz/shared'
 
 // W8 Shipping logo — styled text version matching the Figma design
+// W8 Shipping logo — exact SVG from brand assets
 function W8Logo() {
   return (
-    <div className="flex items-center gap-2 select-none">
-      <span
-        className="font-extrabold text-[42px] leading-none tracking-tight"
-        style={{ color: '#d42e5b', fontFamily: "'Nunito Sans', sans-serif" }}
-      >
-        w8
-      </span>
-      <span
-        className="text-white text-base font-light tracking-widest uppercase"
-        style={{ fontFamily: "'Nunito Sans', sans-serif", letterSpacing: '0.25em', marginTop: 4 }}
-      >
-        shipping
-      </span>
-    </div>
+    <img
+      src="/w8-logo-wide.svg"
+      alt="W8 Shipping"
+      width={137}
+      height={55}
+      className="select-none"
+    />
   )
 }
 
