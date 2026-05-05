@@ -116,7 +116,7 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
         )}
 
         {store.activePanel === 'design' && (
-          <div className="flex-1 p-4 space-y-4">
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto">
             <div>
               <label className="text-xs text-neutral-500 mb-1.5 block">Цвет акцента</label>
               <div className="flex items-center gap-2">
@@ -327,7 +327,7 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
         )}
 
         {store.activePanel === 'settings' && (
-          <div className="flex-1 p-4 space-y-4">
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto">
             <div>
               <label className="text-xs text-neutral-500 mb-1.5 block">Название квиза</label>
               <input
