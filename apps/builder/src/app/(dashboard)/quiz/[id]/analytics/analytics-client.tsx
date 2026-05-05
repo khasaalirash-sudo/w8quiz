@@ -1,16 +1,7 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import type { AnalyticsData } from '@/lib/actions/leads'
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart) as any, { ssr: false }) as any
-const Area = dynamic(() => import('recharts').then((m) => m.Area) as any, { ssr: false }) as any
-const XAxis = dynamic(() => import('recharts').then((m) => m.XAxis) as any, { ssr: false }) as any
-const YAxis = dynamic(() => import('recharts').then((m) => m.YAxis) as any, { ssr: false }) as any
-const CartesianGrid = dynamic(() => import('recharts').then((m) => m.CartesianGrid) as any, { ssr: false }) as any
-const Tooltip = dynamic(() => import('recharts').then((m) => m.Tooltip) as any, { ssr: false }) as any
-const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer) as any, { ssr: false }) as any
+import { AnalyticsChart } from './analytics-chart'
 
 const COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff']
 
@@ -52,31 +43,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
               <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Лиды</span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={dailySessions}>
-              <defs>
-                <linearGradient id="gradStarts" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gradCompletions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gradLeads" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={4} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 13 }} />
-              <Area type="monotone" dataKey="starts" name="Старты" stroke="#6366f1" fill="url(#gradStarts)" strokeWidth={2} />
-              <Area type="monotone" dataKey="completions" name="Завершения" stroke="#10b981" fill="url(#gradCompletions)" strokeWidth={2} />
-              <Area type="monotone" dataKey="leads" name="Лиды" stroke="#f59e0b" fill="url(#gradLeads)" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <AnalyticsChart data={dailySessions} />
         </div>
       )}
 
