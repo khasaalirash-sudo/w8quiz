@@ -115,7 +115,7 @@ export async function getAnalytics(quizId: string): Promise<AnalyticsData> {
 
   const { data: leads } = await supabase
     .from('leads')
-    .select('id, created_at')
+    .select('id, created_at, session_id')
     .eq('quiz_id', quizId)
     .gte('created_at', thirtyDaysAgo.toISOString())
 
@@ -162,7 +162,7 @@ export async function getAnalytics(quizId: string): Promise<AnalyticsData> {
   // Funnel: count answers per question
   const { data: questions } = await supabase
     .from('questions')
-    .select('id, title, position')
+    .select('id, title, position, type')
     .eq('quiz_id', quizId)
     .order('position')
 
@@ -174,19 +174,25 @@ export async function getAnalytics(quizId: string): Promise<AnalyticsData> {
     if (sessionIds.length > 0) {
       const { data: answers } = await supabase
         .from('answers')
-        .select('question_id')
+        .select('question_id, session_id')
         .in('session_id', sessionIds)
 
       const answerCounts = new Map<string, number>()
+      const answeredPairs = new Set<string>()
       for (const a of (answers ?? [])) {
+        const key = `${a.question_id}:${a.session_id}`
+        if (answeredPairs.has(key)) continue
+        answeredPairs.add(key)
         answerCounts.set(a.question_id, (answerCounts.get(a.question_id) ?? 0) + 1)
       }
+
+      const leadSessionIds = new Set((allLeads ?? []).map((l) => l.session_id).filter(Boolean))
 
       for (const q of questions) {
         funnel.push({
           step: q.position + 1,
           questionTitle: q.title || `Вопрос ${q.position + 1}`,
-          answers: answerCounts.get(q.id) ?? 0,
+          answers: q.type === 'lead_form' ? leadSessionIds.size : (answerCounts.get(q.id) ?? 0),
         })
       }
     } else {
