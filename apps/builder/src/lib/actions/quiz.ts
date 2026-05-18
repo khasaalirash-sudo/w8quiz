@@ -10,6 +10,12 @@ import { isDevMode, getDevQuizzes, getDevQuizPayload } from '@/lib/dev-mode'
 
 const DEFAULT_SETTINGS: QuizSettings = {
   accentColor: '#d42e5b',
+  designImageAnchor: 'center',
+  designImageX: 50,
+  designImageY: 72,
+  designImageWidthDesktop: 320,
+  designImageWidthTablet: 240,
+  designImageWidthMobile: 170,
   showProgressBar: true,
   showQuestionCount: true,
   transition: 'slide',
@@ -67,8 +73,8 @@ export async function createQuiz() {
   }
 
   // Создаём первый вопрос и форму лидов
-  const q1Id = nanoid()
-  const leadId = nanoid()
+  const q1Id = crypto.randomUUID()
+  const leadId = crypto.randomUUID()
 
   await supabase.from('questions').insert([
     {
@@ -92,8 +98,8 @@ export async function createQuiz() {
           subtitle: 'Оставьте контакты и мы свяжемся с вами',
           buttonText: 'Отправить',
           fields: [
-            { id: nanoid(), type: 'name', label: 'Имя', placeholder: 'Как вас зовут?', required: true },
-            { id: nanoid(), type: 'phone', label: 'Телефон', placeholder: '+7 (___) ___-__-__', required: true },
+            { id: crypto.randomUUID(), type: 'name', label: 'Имя', placeholder: 'Как вас зовут?', required: true },
+            { id: crypto.randomUUID(), type: 'phone', label: 'Телефон', placeholder: '+7 (___) ___-__-__', required: true },
           ],
         },
       },
@@ -103,7 +109,7 @@ export async function createQuiz() {
 
   // Дефолтный вариант ответа для первого вопроса
   await supabase.from('options').insert({
-    id: nanoid(),
+    id: crypto.randomUUID(),
     question_id: q1Id,
     text: 'Вариант 1',
     position: 0,
@@ -177,6 +183,29 @@ export async function saveQuiz(payload: {
   )
 
   const { quiz, questions, options, logicRules } = payload
+
+  // 0. Проверка владения квизом
+  const { data: ownedQuiz, error: ownErr } = await supabase
+    .from('quizzes')
+    .select('id')
+    .eq('id', quiz.id)
+    .eq('user_id', user.id)
+    .single()
+  if (ownErr || !ownedQuiz) throw new Error('Quiz not found or access denied')
+
+  // Все questions должны принадлежать этому квизу
+  if (questions.some((q) => q.quiz_id !== quiz.id)) {
+    throw new Error('Question quiz_id mismatch')
+  }
+  // Все options должны ссылаться на вопрос этого квиза
+  const qIdSet = new Set(questions.map((q) => q.id))
+  for (const opt of Object.values(options).flat()) {
+    if (!qIdSet.has(opt.question_id)) throw new Error('Option question_id mismatch')
+  }
+  // Все logic rules должны принадлежать этому квизу
+  if (logicRules.some((r) => r.quiz_id !== quiz.id)) {
+    throw new Error('Logic rule quiz_id mismatch')
+  }
 
   // 1. Update quiz
   const { error: quizError } = await supabase

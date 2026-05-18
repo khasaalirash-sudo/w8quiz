@@ -35,6 +35,17 @@ const QUESTION_TYPE_ICONS: Record<QuestionType, string> = {
   lead_form: '📋',
 }
 
+type DesignViewport = 'desktop' | 'tablet' | 'mobile'
+
+const VIEWPORT_FRAME: Record<DesignViewport, { w: number; h: number; label: string }> = {
+  desktop: { w: 980, h: 600, label: 'Desktop' },
+  tablet: { w: 768, h: 960, label: 'Tablet' },
+  mobile: { w: 390, h: 844, label: 'Mobile' },
+}
+
+const DEFAULT_INTRO_BG = '/default-intro-bg.svg'
+const DEFAULT_INTRO_CAR = '/default-intro-car.svg'
+
 export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorProps) {
   const store = useEditorStore()
   const selectedQuestion = useEditorStore(selectSelectedQuestion)
@@ -292,6 +303,107 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
                   className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
                 />
               </div>
+
+              <div className="border-t border-neutral-100 pt-4 space-y-3">
+                <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Изображение #1 (декор)</h4>
+
+                <div>
+                  <label className="text-xs text-neutral-500 mb-1.5 block">URL изображения</label>
+                  <input
+                    type="url"
+                    value={store.quiz?.settings.designImageUrl ?? ''}
+                    onChange={(e) => store.updateSettings({ designImageUrl: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                  />
+                </div>
+
+                <DesignImageUpload />
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs text-neutral-500 mb-1 block">Desktop (px)</label>
+                    <input
+                      type="number"
+                      min={40}
+                      max={1200}
+                      value={store.quiz?.settings.designImageWidthDesktop ?? 320}
+                      onChange={(e) => store.updateSettings({ designImageWidthDesktop: Number(e.target.value) || 320 })}
+                      className="w-full px-2.5 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-neutral-500 mb-1 block">Tablet (px)</label>
+                    <input
+                      type="number"
+                      min={40}
+                      max={1000}
+                      value={store.quiz?.settings.designImageWidthTablet ?? 240}
+                      onChange={(e) => store.updateSettings({ designImageWidthTablet: Number(e.target.value) || 240 })}
+                      className="w-full px-2.5 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-neutral-500 mb-1 block">Mobile (px)</label>
+                    <input
+                      type="number"
+                      min={40}
+                      max={800}
+                      value={store.quiz?.settings.designImageWidthMobile ?? 170}
+                      onChange={(e) => store.updateSettings({ designImageWidthMobile: Number(e.target.value) || 170 })}
+                      className="w-full px-2.5 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs text-neutral-500 mb-1.5 block">Привязка (как в Figma)</label>
+                  <select
+                    value={store.quiz?.settings.designImageAnchor ?? 'center'}
+                    onChange={(e) => store.updateSettings({ designImageAnchor: e.target.value as NonNullable<Quiz['settings']['designImageAnchor']> })}
+                    className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg"
+                  >
+                    <option value="top-left">Top Left</option>
+                    <option value="top-center">Top Center</option>
+                    <option value="top-right">Top Right</option>
+                    <option value="middle-left">Middle Left</option>
+                    <option value="center">Center</option>
+                    <option value="middle-right">Middle Right</option>
+                    <option value="bottom-left">Bottom Left</option>
+                    <option value="bottom-center">Bottom Center</option>
+                    <option value="bottom-right">Bottom Right</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-neutral-500 mb-1 block">X (%)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={store.quiz?.settings.designImageX ?? 50}
+                      onChange={(e) => store.updateSettings({ designImageX: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })}
+                      className="w-full px-2.5 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-neutral-500 mb-1 block">Y (%)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={store.quiz?.settings.designImageY ?? 72}
+                      onChange={(e) => store.updateSettings({ designImageY: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })}
+                      className="w-full px-2.5 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-neutral-400">
+                  В центре перетаскивайте изображение мышью — позиция сохранится в X/Y.
+                </p>
+              </div>
             </div>
 
             <div>
@@ -390,8 +502,10 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
       </div>
 
       {/* ── Center: Preview ── */}
-      <div className="flex-1 bg-neutral-100 flex items-center justify-center overflow-auto p-8">
-        {selectedQuestion ? (
+      <div className="flex-1 min-w-0 bg-neutral-100 flex items-center justify-center overflow-auto p-8">
+        {store.activePanel === 'design' ? (
+          <DesignPreview />
+        ) : selectedQuestion ? (
           <QuestionPreview question={selectedQuestion} />
         ) : (
           <div className="text-neutral-400 text-sm">Выберите вопрос для редактирования</div>
@@ -399,15 +513,23 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
       </div>
 
       {/* ── Right Panel: Settings ── */}
-      <div className="w-80 shrink-0 border-l border-neutral-200 bg-white overflow-auto">
-        {selectedQuestion ? (
-          <QuestionSettingsPanel question={selectedQuestion} />
-        ) : (
-          <div className="p-6 text-center text-neutral-400 text-sm">
-            <div className="text-3xl mb-3">👈</div>
-            Выберите вопрос слева
-          </div>
-        )}
+      <div
+        className={`shrink-0 border-l border-neutral-200 bg-white overflow-auto transition-[width,transform,opacity] duration-300 ease-in-out ${
+          store.activePanel === 'questions'
+            ? 'w-80 translate-x-0 opacity-100'
+            : 'w-0 translate-x-full opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="w-80">
+          {selectedQuestion ? (
+            <QuestionSettingsPanel question={selectedQuestion} />
+          ) : (
+            <div className="p-6 text-center text-neutral-400 text-sm">
+              <div className="text-3xl mb-3">👈</div>
+              Выберите вопрос слева
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Save status ── */}
@@ -610,6 +732,294 @@ function QuestionsList({
         </Droppable>
       </DragDropContext>
     </div>
+  )
+}
+
+function getAnchorTransform(anchor: NonNullable<Quiz['settings']['designImageAnchor']>) {
+  switch (anchor) {
+    case 'top-left': return 'translate(0%, 0%)'
+    case 'top-center': return 'translate(-50%, 0%)'
+    case 'top-right': return 'translate(-100%, 0%)'
+    case 'middle-left': return 'translate(0%, -50%)'
+    case 'center': return 'translate(-50%, -50%)'
+    case 'middle-right': return 'translate(-100%, -50%)'
+    case 'bottom-left': return 'translate(0%, -100%)'
+    case 'bottom-center': return 'translate(-50%, -100%)'
+    case 'bottom-right': return 'translate(-100%, -100%)'
+    default: return 'translate(-50%, -50%)'
+  }
+}
+
+function DesignPreview() {
+  const updateSettings = useEditorStore((s) => s.updateSettings)
+
+  return (
+    <div className="w-full min-w-0 max-w-[1200px] flex flex-col items-center gap-4">
+      <div className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 shadow-sm flex flex-wrap items-center gap-2 justify-between">
+        <div className="text-xs text-neutral-500">
+          Одновременно видно 3 версии: <span className="font-medium text-neutral-700">Web / Tablet / Mobile</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => updateSettings({ designImageAnchor: 'bottom-center', designImageX: 50, designImageY: 92 })}
+            className="px-2.5 py-1 text-xs rounded-lg border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+          >
+            Позиция: снизу по центру
+          </button>
+          <button
+            onClick={() => updateSettings({ designImageAnchor: 'center', designImageX: 50, designImageY: 50 })}
+            className="px-2.5 py-1 text-xs rounded-lg border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+          >
+            Позиция: центр
+          </button>
+          <button
+            onClick={() => updateSettings({ designImageAnchor: 'top-right', designImageX: 96, designImageY: 6 })}
+            className="px-2.5 py-1 text-xs rounded-lg border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+          >
+            Позиция: сверху справа
+          </button>
+        </div>
+      </div>
+
+      <div className="w-full min-w-0 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        <DesignDevicePreview viewport="desktop" />
+        <DesignDevicePreview viewport="tablet" />
+        <DesignDevicePreview viewport="mobile" />
+      </div>
+    </div>
+  )
+}
+
+function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
+  const settings = useEditorStore((s) => s.quiz?.settings)
+  const updateSettings = useEditorStore((s) => s.updateSettings)
+  const frameRef = useRef<HTMLDivElement>(null)
+
+  const frame = VIEWPORT_FRAME[viewport]
+  const imageUrl = settings?.designImageUrl
+  const anchor = settings?.designImageAnchor ?? 'center'
+  const x = settings?.designImageX ?? 50
+  const y = settings?.designImageY ?? 72
+  const width = viewport === 'desktop'
+    ? (settings?.designImageWidthDesktop ?? 320)
+    : viewport === 'tablet'
+      ? (settings?.designImageWidthTablet ?? 240)
+      : (settings?.designImageWidthMobile ?? 170)
+  const introBg = (settings?.startBackgroundUrl ?? '').trim() || DEFAULT_INTRO_BG
+  const introCar = (settings?.startCarImageUrl ?? '').trim() || DEFAULT_INTRO_CAR
+
+  const box = viewport === 'desktop'
+    ? { w: 360, h: 220 }
+    : viewport === 'tablet'
+      ? { w: 280, h: 360 }
+      : { w: 220, h: 420 }
+
+  const scale = Math.min(box.w / frame.w, box.h / frame.h)
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLImageElement>) => {
+    const rect = frameRef.current?.getBoundingClientRect()
+    if (!rect) return
+
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+
+    const onMove = (ev: PointerEvent) => {
+      const nx = ((ev.clientX - rect.left) / rect.width) * 100
+      const ny = ((ev.clientY - rect.top) / rect.height) * 100
+      updateSettings({
+        designImageX: Math.min(100, Math.max(0, Number(nx.toFixed(2)))),
+        designImageY: Math.min(100, Math.max(0, Number(ny.toFixed(2)))),
+      })
+    }
+
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
+
+  return (
+    <div className="bg-white border border-neutral-200 rounded-xl p-3 shadow-sm min-w-0">
+      <div className="text-xs font-medium text-neutral-600 mb-2">{VIEWPORT_FRAME[viewport].label}</div>
+      <div className="relative rounded-lg border border-neutral-200 bg-neutral-50 overflow-hidden" style={{ width: box.w, height: box.h }}>
+        <div
+          ref={frameRef}
+          className="absolute left-1/2 top-1/2 overflow-hidden rounded-md border border-neutral-300 bg-white"
+          style={{
+            width: frame.w,
+            height: frame.h,
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transformOrigin: 'center center',
+          }}
+        >
+          <img src={introBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/70" />
+
+          <div className="absolute inset-0 z-10 flex flex-col items-center text-center px-6 pt-8">
+            <W8LogoPreview />
+            <h3 className="mt-6 text-white font-bold text-[34px] leading-[1.1] max-w-[620px]">
+              {settings?.headerTitle || 'Заголовок стартового экрана'}
+            </h3>
+            <p className="mt-4 text-white/95 text-base max-w-[520px]">
+              {settings?.headerSubtitle || 'Подзаголовок'}
+            </p>
+            <button
+              className="mt-6 inline-flex items-center gap-3 px-8 h-[52px] rounded-full text-white text-base font-semibold"
+              style={{ backgroundColor: settings?.accentColor ?? '#d42e5b' }}
+            >
+              {settings?.startButtonText || 'Получить подборку'}
+            </button>
+          </div>
+
+          <img
+            src={introCar}
+            alt=""
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[72%] max-w-none -scale-x-100"
+          />
+
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="Декор"
+              onPointerDown={handlePointerDown}
+              className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                width,
+                transform: getAnchorTransform(anchor),
+                touchAction: 'none',
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function W8LogoPreview() {
+  return (
+    <img
+      src="/w8-logo-wide.svg"
+      alt="W8 Shipping"
+      width={137}
+      height={55}
+      className="select-none brightness-0 invert"
+    />
+  )
+}
+
+function DesignImageUpload() {
+  const settings = useEditorStore((s) => s.quiz?.settings)
+  const updateSettings = useEditorStore((s) => s.updateSettings)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const processFile = useCallback(async (file: File) => {
+    setError(null)
+    if (!file.type.startsWith('image/')) {
+      setError('Не картинка')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Файл больше 5 МБ')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const result = await uploadQuestionImage(formData)
+      if (result.error) setError(result.error)
+      else if (result.url) updateSettings({ designImageUrl: result.url })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Ошибка загрузки')
+    } finally {
+      setIsUploading(false)
+    }
+  }, [updateSettings])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file) processFile(file)
+  }, [processFile])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) processFile(file)
+    e.target.value = ''
+  }
+
+  const clearImage = () => updateSettings({ designImageUrl: '' })
+
+  if ((settings?.designImageUrl ?? '').trim()) {
+    return (
+      <div className="relative group rounded-xl overflow-hidden border border-neutral-200">
+        <img src={settings?.designImageUrl} alt="Изображение #1" className="w-full h-32 object-cover" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+          <button onClick={() => inputRef.current?.click()} className="px-3 py-1.5 bg-white rounded-lg text-xs font-medium text-neutral-700 hover:bg-neutral-50 shadow-sm">
+            {isUploading ? 'Загрузка…' : 'Заменить'}
+          </button>
+          <button onClick={clearImage} className="px-3 py-1.5 bg-red-500 rounded-lg text-xs font-medium text-white hover:bg-red-600 shadow-sm">
+            Удалить
+          </button>
+        </div>
+        <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        className={`border-2 border-dashed rounded-xl p-4 text-center transition-all cursor-pointer ${
+          isDragging
+            ? 'border-accent-400 bg-accent-50 scale-[1.02]'
+            : 'border-neutral-200 hover:border-accent-300 hover:bg-neutral-50'
+        } ${isUploading ? 'opacity-60 pointer-events-none' : ''}`}
+      >
+        <div className={`text-xl mb-1 transition-transform ${isDragging ? 'scale-110' : ''}`}>
+          {isUploading ? '⏳' : isDragging ? '📥' : '🖼️'}
+        </div>
+        <p className="text-xs text-neutral-500">
+          {isUploading ? 'Загружается…' : isDragging ? 'Отпустите для загрузки' : 'Drag & Drop или клик'}
+        </p>
+        <p className="text-[10px] text-neutral-400 mt-1">PNG, JPG, WebP · до 5 МБ</p>
+        {error && <p className="text-[11px] text-red-600 mt-2">{error}</p>}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+    </>
   )
 }
 

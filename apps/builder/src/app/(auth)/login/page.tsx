@@ -18,21 +18,31 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+        return
+      }
+      router.push('/dashboard')
+      router.refresh()
+    } catch {
+      setError('Не удаётся подключиться к Supabase. Проверьте NEXT_PUBLIC_SUPABASE_URL в apps/builder/.env.local')
       setLoading(false)
-      return
     }
-    router.push('/dashboard')
-    router.refresh()
   }
 
   async function handleGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${location.origin}/auth/callback` },
-    })
+    setError(null)
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${location.origin}/auth/callback` },
+      })
+    } catch {
+      setError('Не удаётся подключиться к Supabase. Проверьте NEXT_PUBLIC_SUPABASE_URL в apps/builder/.env.local')
+    }
   }
 
   return (

@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-import { nanoid } from 'nanoid'
 import type { Quiz, Question, Option, LogicRule, QuestionType, QuizSettings } from '@markquiz/shared'
 
 // ─── State Shape ─────────────────────────────────────
@@ -78,18 +77,18 @@ export const useEditorStore = create<EditorState>()(
       const defaultSettings: Question['settings'] =
         type === 'lead_form'
           ? {
-              leadForm: {
-                title: 'Оставьте контакты',
-                subtitle: 'Менеджер свяжется с вами',
-                buttonText: 'Отправить',
-                fields: [
-                  { id: crypto.randomUUID(), type: 'name', label: 'Имя', placeholder: 'Имя', required: true },
-                  { id: crypto.randomUUID(), type: 'phone', label: 'Телефон', placeholder: '+7 ...', required: true },
-                  { id: crypto.randomUUID(), type: 'email', label: 'Email', placeholder: 'you@example.com', required: false },
-                ],
-                privacyText: 'Нажимая кнопку, вы соглашаетесь с обработкой персональных данных',
-              },
-            }
+            leadForm: {
+              title: 'Оставьте контакты',
+              subtitle: 'Менеджер свяжется с вами',
+              buttonText: 'Отправить',
+              fields: [
+                { id: crypto.randomUUID(), type: 'name', label: 'Имя', placeholder: 'Имя', required: true },
+                { id: crypto.randomUUID(), type: 'phone', label: 'Телефон', placeholder: '+7 ...', required: true },
+                { id: crypto.randomUUID(), type: 'email', label: 'Email', placeholder: 'you@example.com', required: false },
+              ],
+              privacyText: 'Нажимая кнопку, вы соглашаетесь с обработкой персональных данных',
+            },
+          }
           : {}
       const newQ: Question = {
         id,

@@ -4,16 +4,12 @@ import type { Quiz, Question, Option, LogicRule, QuizSettings } from '@markquiz/
 // ─── Dev Mode Detection ──────────────────────────────
 
 /**
- * Dev-режим активируется когда Supabase не настроен (заглушки в .env.local).
- * Позволяет пользоваться всем интерфейсом без реальной базы данных.
+ * Dev-режим активируется ТОЛЬКО при явном NEXT_PUBLIC_DEV_MODE=true.
+ * На проде отсутствие SUPABASE_URL должно валиться громко, а не молча
+ * подменять данные моками.
  */
 export function isDevMode(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  return (
-    !url ||
-    url === 'https://your-project.supabase.co' ||
-    url.includes('your-project')
-  )
+  return process.env.NEXT_PUBLIC_DEV_MODE === 'true'
 }
 
 // ─── Mock User ───────────────────────────────────────
@@ -38,6 +34,12 @@ const DEMO_LEAD_ID = 'demo-q-lead'
 
 const DEFAULT_SETTINGS: QuizSettings = {
   accentColor: '#6C5CE7',
+  designImageAnchor: 'center',
+  designImageX: 50,
+  designImageY: 72,
+  designImageWidthDesktop: 320,
+  designImageWidthTablet: 240,
+  designImageWidthMobile: 170,
   showProgressBar: true,
   showQuestionCount: true,
   transition: 'slide',

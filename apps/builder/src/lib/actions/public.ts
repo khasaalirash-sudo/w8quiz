@@ -11,6 +11,23 @@ async function createServiceClient() {
   )
 }
 
+// ─── Input validation ────────────────────────────────
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PHONE_RE = /^[+\d][\d\s\-()]{6,20}$/
+const MAX_TEXT = 2000
+const MAX_NAME = 200
+
+function sanitizeStr(v: unknown, max: number): string | null {
+  if (typeof v !== 'string') return null
+  const s = v.trim().slice(0, max)
+  return s.length > 0 ? s : null
+}
+
+function isUuid(v: unknown): v is string {
+  return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)
+}
+
 // ─── Public quiz fetch by slug ───────────────────────
 
 export interface PublicQuizData {
@@ -66,7 +83,16 @@ export async function getPublicQuiz(slug: string): Promise<PublicQuizData | null
 // ─── Create quiz session ─────────────────────────────
 
 export async function createQuizSession(quizId: string) {
+  if (!isUuid(quizId)) return null
   const supabase = await createServiceClient()
+
+  // Проверяем, что квиз существует и опубликован
+  const { data: quiz } = await supabase
+    .from('quizzes')
+    .select('id, is_published')
+    .eq('id', quizId)
+    .single()
+  if (!quiz || !quiz.is_published) return null
 
   const { data, error } = await supabase
     .from('quiz_sessions')
@@ -92,13 +118,24 @@ export async function submitAnswer(params: {
   optionIds?: string[]
   textValue?: string
 }) {
+  if (!isUuid(params.sessionId) || !isUuid(params.questionId)) return
+  const optionIds = (params.optionIds ?? []).filter(isUuid).slice(0, 50)
+  const textValue = sanitizeStr(params.textValue, MAX_TEXT)
+
   const supabase = await createServiceClient()
+
+  // Сверяем session.quiz_id == question.quiz_id (защита от подделки)
+  const [{ data: session }, { data: question }] = await Promise.all([
+    supabase.from('quiz_sessions').select('quiz_id').eq('id', params.sessionId).single(),
+    supabase.from('questions').select('quiz_id').eq('id', params.questionId).single(),
+  ])
+  if (!session || !question || session.quiz_id !== question.quiz_id) return
 
   const { error } = await supabase.from('answers').insert({
     session_id: params.sessionId,
     question_id: params.questionId,
-    option_ids: params.optionIds ?? [],
-    text_value: params.textValue ?? null,
+    option_ids: optionIds,
+    text_value: textValue,
   })
 
   if (error) console.error('[submitAnswer]', error)
@@ -114,7 +151,37 @@ export async function submitLead(params: {
   phone?: string
   customFields?: Record<string, string>
 }) {
+  if (!isUuid(params.sessionId) || !isUuid(params.quizId)) {
+    return { success: false }
+  }
+
+  const name = sanitizeStr(params.name, MAX_NAME)
+  const emailRaw = sanitizeStr(params.email, MAX_NAME)
+  const email = emailRaw && EMAIL_RE.test(emailRaw) ? emailRaw : null
+  const phoneRaw = sanitizeStr(params.phone, MAX_NAME)
+  const phone = phoneRaw && PHONE_RE.test(phoneRaw) ? phoneRaw : null
+
+  const customFields: Record<string, string> = {}
+  if (params.customFields && typeof params.customFields === 'object') {
+    for (const [k, v] of Object.entries(params.customFields)) {
+      const key = sanitizeStr(k, 100)
+      const val = sanitizeStr(v, MAX_TEXT)
+      if (key && val) customFields[key] = val
+      if (Object.keys(customFields).length >= 30) break
+    }
+  }
+
   const supabase = await createServiceClient()
+
+  // Сверяем, что сессия принадлежит этому квизу
+  const { data: session } = await supabase
+    .from('quiz_sessions')
+    .select('quiz_id')
+    .eq('id', params.sessionId)
+    .single()
+  if (!session || session.quiz_id !== params.quizId) {
+    return { success: false }
+  }
 
   // Mark session as completed
   await supabase
@@ -126,10 +193,10 @@ export async function submitLead(params: {
   const { error } = await supabase.from('leads').insert({
     quiz_id: params.quizId,
     session_id: params.sessionId,
-    name: params.name ?? null,
-    email: params.email ?? null,
-    phone: params.phone ?? null,
-    custom_fields: params.customFields ?? {},
+    name,
+    email,
+    phone,
+    custom_fields: customFields,
   })
 
   if (error) {

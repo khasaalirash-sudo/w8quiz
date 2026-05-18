@@ -1,13 +1,6 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Временно: не блокируем билд из-за TS/ESLint, MVP-демо
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   // Турбопак включён через флаг в dev скрипте
   images: {
     remotePatterns: [

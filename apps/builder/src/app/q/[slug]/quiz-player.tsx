@@ -22,13 +22,36 @@ interface QuizPlayerProps {
   data: PublicQuizData
 }
 
+function safeExternalUrl(url: string | undefined | null, fallback = ''): string {
+  if (!url) return fallback
+  const trimmed = url.trim()
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  if (trimmed.startsWith('/')) return trimmed
+  return fallback
+}
+
+function getAnchorTransform(anchor?: string) {
+  switch (anchor) {
+    case 'top-left': return 'translate(0%, 0%)'
+    case 'top-center': return 'translate(-50%, 0%)'
+    case 'top-right': return 'translate(-100%, 0%)'
+    case 'middle-left': return 'translate(0%, -50%)'
+    case 'center': return 'translate(-50%, -50%)'
+    case 'middle-right': return 'translate(-100%, -50%)'
+    case 'bottom-left': return 'translate(0%, -100%)'
+    case 'bottom-center': return 'translate(-50%, -100%)'
+    case 'bottom-right': return 'translate(-100%, -100%)'
+    default: return 'translate(-50%, -50%)'
+  }
+}
+
 export function QuizPlayer({ data }: QuizPlayerProps) {
-  const DEFAULT_INTRO_BG = 'https://www.figma.com/api/mcp/asset/60bfc1ce-85ba-4c3d-bf86-13bd829986fe'
-  const DEFAULT_INTRO_CAR = 'https://www.figma.com/api/mcp/asset/55b82c09-de7c-4ea5-85b8-4a3b1ac49eed'
-  const DEFAULT_THANKS_BG = 'https://www.figma.com/api/mcp/asset/88184ce4-0f14-4c43-8b94-07b2412fe96e'
-  const DEFAULT_THANKS_CAR = 'https://www.figma.com/api/mcp/asset/9d79789a-9d1c-433d-9142-4b878331c104'
-  const DEFAULT_WA_ICON = 'https://www.figma.com/api/mcp/asset/da489e22-d3af-40e4-82e8-658e4c4f82ac'
-  const DEFAULT_IG_ICON = 'https://www.figma.com/api/mcp/asset/3ef523b3-39fa-4320-ba86-4616de3edd9f'
+  const DEFAULT_INTRO_BG = '/default-intro-bg.svg'
+  const DEFAULT_INTRO_CAR = '/default-intro-car.svg'
+  const DEFAULT_THANKS_BG = '/default-thanks-bg.svg'
+  const DEFAULT_THANKS_CAR = '/default-thanks-car.svg'
+  const DEFAULT_WA_ICON = '/default-wa-icon.svg'
+  const DEFAULT_IG_ICON = '/default-ig-icon.svg'
 
   const { quiz, questions, options, logicRules } = data
   const accentColor = quiz.settings.accentColor ?? '#d42e5b'
@@ -45,9 +68,13 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   const thanksPrimaryText = quiz.settings.finalPrimaryText || 'На основе ваших ответов мы уже подбираем для вас самые лучшие варианты авто из США.'
   const thanksSecondaryText = quiz.settings.finalSecondaryText || 'Наш эксперт свяжется с вами в течение рабочего дня и покажет реальные автомобили с аукционов, соответствующих вашему бюджету.'
   const resultButtonText = quiz.settings.resultButtonText || 'Перейти в каталог авто'
-  const resultUrl = quiz.settings.redirectUrl || 'https://w8shipping.kz/'
-  const resultFileUrl = quiz.settings.resultFileUrl || ''
+  const resultUrl = safeExternalUrl(quiz.settings.redirectUrl, 'https://w8shipping.kz/')
+  const resultFileUrl = safeExternalUrl(quiz.settings.resultFileUrl, '')
   const resultFileLabel = quiz.settings.resultFileLabel || 'Скачать файл'
+  const designImageUrl = quiz.settings.designImageUrl || ''
+  const designImageAnchor = quiz.settings.designImageAnchor || 'center'
+  const designImageX = quiz.settings.designImageX ?? 50
+  const designImageY = quiz.settings.designImageY ?? 72
 
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [isStarted, setIsStarted] = useState(false)
@@ -59,6 +86,9 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   const [finished, setFinished] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const sessionCreated = useRef(false)
+  const designImageWidthDesktop = quiz.settings.designImageWidthDesktop ?? 320
+  const designImageWidthTablet = quiz.settings.designImageWidthTablet ?? 240
+  const designImageWidthMobile = quiz.settings.designImageWidthMobile ?? 170
 
   // Create session on mount
   useEffect(() => {
@@ -207,6 +237,21 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
         {/* Background */}
         <img src={thanksBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/80" />
+        {designImageUrl && (
+          <img
+            src={designImageUrl}
+            alt=""
+            className="absolute z-[1] pointer-events-none select-none w-[var(--img-mobile)] md:w-[var(--img-tablet)] lg:w-[var(--img-desktop)]"
+            style={{
+              ['--img-mobile' as string]: `${designImageWidthMobile}px`,
+              ['--img-tablet' as string]: `${designImageWidthTablet}px`,
+              ['--img-desktop' as string]: `${designImageWidthDesktop}px`,
+              left: `${designImageX}%`,
+              top: `${designImageY}%`,
+              transform: getAnchorTransform(designImageAnchor),
+            }}
+          />
+        )}
 
         {/* Logo */}
         <div className="relative z-10 pt-10 flex justify-center">
@@ -237,7 +282,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
               <a
                 href={resultUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-7 h-[55px] rounded-full text-white text-base font-semibold"
                 style={{ backgroundColor: accentColor }}
               >
@@ -258,7 +303,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
                   <a
                     href={resultFileUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 h-[55px] rounded-full border text-sm font-semibold"
                     style={{ borderColor: accentColor, color: accentColor }}
                   >
@@ -270,7 +315,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
               <a
                 href="https://wa.me/+77072570703"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="h-[46px] w-[46px] rounded-full border-2 bg-white overflow-hidden inline-flex items-center justify-center flex-shrink-0"
                 style={{ borderColor: accentColor }}
               >
@@ -280,7 +325,7 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
               <a
                 href="https://instagram.com/w8shipping_kazakhstan"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="h-[46px] w-[46px] rounded-full border-2 bg-white overflow-hidden inline-flex items-center justify-center flex-shrink-0"
                 style={{ borderColor: accentColor }}
               >
@@ -306,6 +351,21 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
         {/* Background */}
         <img src={introBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/80" />
+        {designImageUrl && (
+          <img
+            src={designImageUrl}
+            alt=""
+            className="absolute z-[1] pointer-events-none select-none w-[var(--img-mobile)] md:w-[var(--img-tablet)] lg:w-[var(--img-desktop)]"
+            style={{
+              ['--img-mobile' as string]: `${designImageWidthMobile}px`,
+              ['--img-tablet' as string]: `${designImageWidthTablet}px`,
+              ['--img-desktop' as string]: `${designImageWidthDesktop}px`,
+              left: `${designImageX}%`,
+              top: `${designImageY}%`,
+              transform: getAnchorTransform(designImageAnchor),
+            }}
+          />
+        )}
 
         <div className="relative z-10 flex flex-col items-center text-center px-5 pt-10 min-h-screen">
           {/* Logo */}
