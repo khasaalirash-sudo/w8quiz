@@ -44,10 +44,6 @@ export interface QuizSettings {
   startButtonText?: string
   /** Фон стартового экрана */
   startBackgroundUrl?: string
-  /** Тип фона стартового экрана: 'image' (по умолчанию) | 'gradient' */
-  startBackgroundType?: 'image' | 'gradient'
-  /** CSS-градиент (например, "linear-gradient(135deg, #d42e5b, #1a1a1a)") */
-  startBackgroundGradient?: string
   /** Изображение авто на стартовом экране */
   startCarImageUrl?: string
 
@@ -59,10 +55,6 @@ export interface QuizSettings {
   finalSecondaryText?: string
   /** Фон финального экрана */
   finalBackgroundUrl?: string
-  /** Тип фона финального экрана */
-  finalBackgroundType?: 'image' | 'gradient'
-  /** CSS-градиент финального экрана */
-  finalBackgroundGradient?: string
   /** Изображение авто на финальном экране */
   finalCarImageUrl?: string
 

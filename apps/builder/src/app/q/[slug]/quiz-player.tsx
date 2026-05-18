@@ -56,12 +56,16 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   const { quiz, questions, options, logicRules } = data
   const accentColor = quiz.settings.accentColor ?? '#d42e5b'
 
+  const introBgType = quiz.settings.startBackgroundType ?? 'image'
+  const introBgGradient = (quiz.settings.startBackgroundGradient ?? '').trim()
   const introBg = quiz.settings.startBackgroundUrl || DEFAULT_INTRO_BG
   const introCar = quiz.settings.startCarImageUrl || DEFAULT_INTRO_CAR
   const introTitle = quiz.settings.headerTitle || 'Покупай авто из США, вместе с W8 Shipping!'
   const introSubtitle = quiz.settings.headerSubtitle || 'Ответьте на 3 вопроса - и получите подборку эксклюзивных и премиальных авто из США!'
   const introButtonText = quiz.settings.startButtonText || 'Получить подборку'
 
+  const thanksBgType = quiz.settings.finalBackgroundType ?? 'image'
+  const thanksBgGradient = (quiz.settings.finalBackgroundGradient ?? '').trim()
   const thanksBg = quiz.settings.finalBackgroundUrl || DEFAULT_THANKS_BG
   const thanksCar = quiz.settings.finalCarImageUrl || DEFAULT_THANKS_CAR
   const thanksTitle = quiz.settings.finalTitle || 'Спасибо!'
@@ -235,8 +239,14 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
     return (
       <div className="min-h-screen relative overflow-hidden">
         {/* Background */}
-        <img src={thanksBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black/80" />
+        {thanksBgType === 'gradient' && thanksBgGradient ? (
+          <div className="absolute inset-0" style={{ background: thanksBgGradient }} />
+        ) : (
+          <>
+            <img src={thanksBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-black/80" />
+          </>
+        )}
         {designImageUrl && (
           <img
             src={designImageUrl}
@@ -349,8 +359,14 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
     return (
       <div className="min-h-screen relative overflow-hidden">
         {/* Background */}
-        <img src={introBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-black/80" />
+        {introBgType === 'gradient' && introBgGradient ? (
+          <div className="absolute inset-0" style={{ background: introBgGradient }} />
+        ) : (
+          <>
+            <img src={introBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-black/80" />
+          </>
+        )}
         {designImageUrl && (
           <img
             src={designImageUrl}

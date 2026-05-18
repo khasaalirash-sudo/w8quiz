@@ -180,24 +180,22 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
               </div>
 
               <div>
-                <label className="text-xs text-neutral-500 mb-1.5 block">URL фона header</label>
-                <input
-                  type="url"
-                  value={store.quiz?.settings.startBackgroundUrl ?? ''}
-                  onChange={(e) => store.updateSettings({ startBackgroundUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                <label className="text-xs text-neutral-500 mb-1.5 block">Фон стартового экрана</label>
+                <BackgroundField
+                  type={store.quiz?.settings.startBackgroundType ?? 'image'}
+                  imageUrl={store.quiz?.settings.startBackgroundUrl ?? ''}
+                  gradient={store.quiz?.settings.startBackgroundGradient ?? GRADIENT_PRESETS[0]!.value}
+                  onTypeChange={(t) => store.updateSettings({ startBackgroundType: t })}
+                  onImageChange={(url) => store.updateSettings({ startBackgroundUrl: url })}
+                  onGradientChange={(g) => store.updateSettings({ startBackgroundGradient: g })}
                 />
               </div>
 
               <div>
-                <label className="text-xs text-neutral-500 mb-1.5 block">URL изображения авто header</label>
-                <input
-                  type="url"
+                <label className="text-xs text-neutral-500 mb-1.5 block">Изображение поверх (например, авто)</label>
+                <ImageDropField
                   value={store.quiz?.settings.startCarImageUrl ?? ''}
-                  onChange={(e) => store.updateSettings({ startCarImageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                  onChange={(url) => store.updateSettings({ startCarImageUrl: url })}
                 />
               </div>
             </div>
@@ -283,42 +281,32 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
               </div>
 
               <div>
-                <label className="text-xs text-neutral-500 mb-1.5 block">URL фона финального экрана</label>
-                <input
-                  type="url"
-                  value={store.quiz?.settings.finalBackgroundUrl ?? ''}
-                  onChange={(e) => store.updateSettings({ finalBackgroundUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                <label className="text-xs text-neutral-500 mb-1.5 block">Фон финального экрана</label>
+                <BackgroundField
+                  type={store.quiz?.settings.finalBackgroundType ?? 'image'}
+                  imageUrl={store.quiz?.settings.finalBackgroundUrl ?? ''}
+                  gradient={store.quiz?.settings.finalBackgroundGradient ?? GRADIENT_PRESETS[0]!.value}
+                  onTypeChange={(t) => store.updateSettings({ finalBackgroundType: t })}
+                  onImageChange={(url) => store.updateSettings({ finalBackgroundUrl: url })}
+                  onGradientChange={(g) => store.updateSettings({ finalBackgroundGradient: g })}
                 />
               </div>
 
               <div>
-                <label className="text-xs text-neutral-500 mb-1.5 block">URL изображения авто финального экрана</label>
-                <input
-                  type="url"
+                <label className="text-xs text-neutral-500 mb-1.5 block">Изображение поверх (например, авто)</label>
+                <ImageDropField
                   value={store.quiz?.settings.finalCarImageUrl ?? ''}
-                  onChange={(e) => store.updateSettings({ finalCarImageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+                  onChange={(url) => store.updateSettings({ finalCarImageUrl: url })}
                 />
               </div>
 
               <div className="border-t border-neutral-100 pt-4 space-y-3">
-                <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Изображение #1 (декор)</h4>
+                <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Декор поверх всего</h4>
 
-                <div>
-                  <label className="text-xs text-neutral-500 mb-1.5 block">URL изображения</label>
-                  <input
-                    type="url"
-                    value={store.quiz?.settings.designImageUrl ?? ''}
-                    onChange={(e) => store.updateSettings({ designImageUrl: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
-                  />
-                </div>
-
-                <DesignImageUpload />
+                <ImageDropField
+                  value={store.quiz?.settings.designImageUrl ?? ''}
+                  onChange={(url) => store.updateSettings({ designImageUrl: url })}
+                />
 
                 <div className="grid grid-cols-3 gap-2">
                   <div>
@@ -805,6 +793,8 @@ function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
     : viewport === 'tablet'
       ? (settings?.designImageWidthTablet ?? 240)
       : (settings?.designImageWidthMobile ?? 170)
+  const bgType = settings?.startBackgroundType ?? 'image'
+  const bgGradient = (settings?.startBackgroundGradient ?? '').trim()
   const introBg = (settings?.startBackgroundUrl ?? '').trim() || DEFAULT_INTRO_BG
   const introCar = (settings?.startCarImageUrl ?? '').trim() || DEFAULT_INTRO_CAR
 
@@ -854,8 +844,14 @@ function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
             transformOrigin: 'center center',
           }}
         >
-          <img src={introBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/70" />
+          {bgType === 'gradient' && bgGradient ? (
+            <div className="absolute inset-0" style={{ background: bgGradient }} />
+          ) : (
+            <>
+              <img src={introBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/70" />
+            </>
+          )}
 
           <div className="absolute inset-0 z-10 flex flex-col items-center text-center px-6 pt-8">
             <W8LogoPreview />
@@ -912,9 +908,19 @@ function W8LogoPreview() {
   )
 }
 
-function DesignImageUpload() {
-  const settings = useEditorStore((s) => s.quiz?.settings)
-  const updateSettings = useEditorStore((s) => s.updateSettings)
+// ─── Reusable image drop field ───────────────────────
+
+function ImageDropField({
+  value,
+  onChange,
+  height = 'h-28',
+  hint = 'PNG, JPG, WebP · до 5 МБ',
+}: {
+  value: string
+  onChange: (url: string) => void
+  height?: string
+  hint?: string
+}) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -922,70 +928,42 @@ function DesignImageUpload() {
 
   const processFile = useCallback(async (file: File) => {
     setError(null)
-    if (!file.type.startsWith('image/')) {
-      setError('Не картинка')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Файл больше 5 МБ')
-      return
-    }
-
+    if (!file.type.startsWith('image/')) return setError('Не картинка')
+    if (file.size > 5 * 1024 * 1024) return setError('Файл больше 5 МБ')
     setIsUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const result = await uploadQuestionImage(formData)
-      if (result.error) setError(result.error)
-      else if (result.url) updateSettings({ designImageUrl: result.url })
+      const fd = new FormData()
+      fd.append('file', file)
+      const r = await uploadQuestionImage(fd)
+      if (r.error) setError(r.error)
+      else if (r.url) onChange(r.url)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Ошибка загрузки')
     } finally {
       setIsUploading(false)
     }
-  }, [updateSettings])
+  }, [onChange])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-    const file = e.dataTransfer.files[0]
-    if (file) processFile(file)
-  }, [processFile])
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }, [])
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }, [])
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) processFile(file)
-    e.target.value = ''
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault(); e.stopPropagation(); setIsDragging(false)
+    const f = e.dataTransfer.files[0]; if (f) processFile(f)
   }
 
-  const clearImage = () => updateSettings({ designImageUrl: '' })
-
-  if ((settings?.designImageUrl ?? '').trim()) {
+  if ((value ?? '').trim()) {
     return (
-      <div className="relative group rounded-xl overflow-hidden border border-neutral-200">
-        <img src={settings?.designImageUrl} alt="Изображение #1" className="w-full h-32 object-cover" />
+      <div className={`relative group rounded-xl overflow-hidden border border-neutral-200 ${height}`}>
+        <img src={value} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-          <button onClick={() => inputRef.current?.click()} className="px-3 py-1.5 bg-white rounded-lg text-xs font-medium text-neutral-700 hover:bg-neutral-50 shadow-sm">
+          <button type="button" onClick={() => inputRef.current?.click()} className="px-3 py-1.5 bg-white rounded-lg text-xs font-medium text-neutral-700 hover:bg-neutral-50 shadow-sm">
             {isUploading ? 'Загрузка…' : 'Заменить'}
           </button>
-          <button onClick={clearImage} className="px-3 py-1.5 bg-red-500 rounded-lg text-xs font-medium text-white hover:bg-red-600 shadow-sm">
+          <button type="button" onClick={() => onChange('')} className="px-3 py-1.5 bg-red-500 rounded-lg text-xs font-medium text-white hover:bg-red-600 shadow-sm">
             Удалить
           </button>
         </div>
-        <input ref={inputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+        <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); e.target.value = '' }} />
+        {error && <p className="absolute bottom-1 left-2 text-[11px] text-red-600 bg-white/90 px-1 rounded">{error}</p>}
       </div>
     )
   }
@@ -994,32 +972,78 @@ function DesignImageUpload() {
     <>
       <div
         onClick={() => inputRef.current?.click()}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDrop={onDrop}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+        onDragLeave={(e) => { e.preventDefault(); setIsDragging(false) }}
         className={`border-2 border-dashed rounded-xl p-4 text-center transition-all cursor-pointer ${
-          isDragging
-            ? 'border-accent-400 bg-accent-50 scale-[1.02]'
-            : 'border-neutral-200 hover:border-accent-300 hover:bg-neutral-50'
+          isDragging ? 'border-accent-400 bg-accent-50' : 'border-neutral-200 hover:border-accent-300 hover:bg-neutral-50'
         } ${isUploading ? 'opacity-60 pointer-events-none' : ''}`}
       >
-        <div className={`text-xl mb-1 transition-transform ${isDragging ? 'scale-110' : ''}`}>
-          {isUploading ? '⏳' : isDragging ? '📥' : '🖼️'}
-        </div>
+        <div className="text-xl mb-1">{isUploading ? '⏳' : isDragging ? '📥' : '🖼️'}</div>
         <p className="text-xs text-neutral-500">
           {isUploading ? 'Загружается…' : isDragging ? 'Отпустите для загрузки' : 'Drag & Drop или клик'}
         </p>
-        <p className="text-[10px] text-neutral-400 mt-1">PNG, JPG, WebP · до 5 МБ</p>
+        <p className="text-[10px] text-neutral-400 mt-1">{hint}</p>
         {error && <p className="text-[11px] text-red-600 mt-2">{error}</p>}
       </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/png,image/jpeg,image/webp,image/gif"
-        onChange={handleFileChange}
-        className="hidden"
-      />
+      <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); e.target.value = '' }} />
     </>
+  )
+}
+
+// ─── Background field (image or gradient) ────────────
+
+const GRADIENT_PRESETS: { label: string; value: string }[] = [
+  { label: 'Тёмный', value: 'linear-gradient(135deg, #1a1a1a 0%, #3a1428 100%)' },
+  { label: 'Розовый', value: 'linear-gradient(135deg, #d42e5b 0%, #6a1131 100%)' },
+  { label: 'Сине-фиолет', value: 'linear-gradient(135deg, #1e3a8a 0%, #6b21a8 100%)' },
+  { label: 'Закат', value: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)' },
+  { label: 'Океан', value: 'linear-gradient(135deg, #0ea5e9 0%, #1e1b4b 100%)' },
+  { label: 'Серый', value: 'linear-gradient(135deg, #525252 0%, #171717 100%)' },
+]
+
+function BackgroundField({
+  type, imageUrl, gradient,
+  onTypeChange, onImageChange, onGradientChange,
+}: {
+  type: 'image' | 'gradient'
+  imageUrl: string
+  gradient: string
+  onTypeChange: (t: 'image' | 'gradient') => void
+  onImageChange: (url: string) => void
+  onGradientChange: (g: string) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="inline-flex rounded-lg border border-neutral-200 p-0.5 bg-neutral-50 text-xs">
+        <button type="button" onClick={() => onTypeChange('image')}
+          className={`px-3 py-1 rounded-md transition-colors ${type === 'image' ? 'bg-white shadow-sm text-neutral-800' : 'text-neutral-500'}`}>
+          Изображение
+        </button>
+        <button type="button" onClick={() => onTypeChange('gradient')}
+          className={`px-3 py-1 rounded-md transition-colors ${type === 'gradient' ? 'bg-white shadow-sm text-neutral-800' : 'text-neutral-500'}`}>
+          Градиент
+        </button>
+      </div>
+
+      {type === 'image' ? (
+        <ImageDropField value={imageUrl} onChange={onImageChange} />
+      ) : (
+        <>
+          <div className="grid grid-cols-3 gap-2">
+            {GRADIENT_PRESETS.map((g) => (
+              <button key={g.value} type="button" onClick={() => onGradientChange(g.value)}
+                className={`h-12 rounded-lg border transition-all ${gradient === g.value ? 'border-accent-500 ring-2 ring-accent-200' : 'border-neutral-200 hover:border-neutral-300'}`}
+                style={{ background: g.value }} title={g.label} />
+            ))}
+          </div>
+          <input type="text" value={gradient} onChange={(e) => onGradientChange(e.target.value)}
+            placeholder="linear-gradient(135deg, #..., #...)"
+            className="w-full px-2.5 py-1.5 text-xs font-mono border border-neutral-200 rounded-lg outline-none focus:border-accent-400" />
+        </>
+      )}
+    </div>
   )
 }
 
