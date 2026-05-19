@@ -22,6 +22,18 @@ interface QuizPlayerProps {
   data: PublicQuizData
 }
 
+type CarPos = 'bottom-center' | 'center' | 'middle-left' | 'middle-right' | 'top-right'
+
+function carPosStyle(pos: CarPos): React.CSSProperties {
+  switch (pos) {
+    case 'bottom-center': return { left: '50%', bottom: 0, transform: 'translateX(-50%) scaleX(-1)' }
+    case 'center':        return { left: '50%', top: '50%', transform: 'translate(-50%, -50%) scaleX(-1)' }
+    case 'middle-left':   return { left: 0, top: '50%', transform: 'translateY(-50%) scaleX(-1)' }
+    case 'middle-right':  return { right: 0, top: '50%', transform: 'translateY(-50%) scaleX(-1)' }
+    case 'top-right':     return { right: 0, top: 0, transform: 'scaleX(-1)' }
+  }
+}
+
 function safeExternalUrl(url: string | undefined | null, fallback = ''): string {
   if (!url) return fallback
   const trimmed = url.trim()
@@ -70,8 +82,10 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   const thanksCar = quiz.settings.finalCarImageUrl || DEFAULT_THANKS_CAR
   const thanksCarWDesktop = quiz.settings.finalCarWidthDesktop ?? 60
   const thanksCarWMobile = quiz.settings.finalCarWidthMobile ?? 90
+  const thanksCarPos: CarPos = quiz.settings.finalCarPosition ?? 'bottom-center'
   const introCarWDesktop = quiz.settings.startCarWidthDesktop ?? 72
   const introCarWMobile = quiz.settings.startCarWidthMobile ?? 90
+  const introCarPos: CarPos = quiz.settings.startCarPosition ?? 'bottom-center'
   const thanksTitle = quiz.settings.finalTitle || 'Спасибо!'
   const thanksPrimaryText = quiz.settings.finalPrimaryText || 'На основе ваших ответов мы уже подбираем для вас самые лучшие варианты авто из США.'
   const thanksSecondaryText = quiz.settings.finalSecondaryText || 'Наш эксперт свяжется с вами в течение рабочего дня и покажет реальные автомобили с аукционов, соответствующих вашему бюджету.'
@@ -347,12 +361,16 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
               </a>
             </div>
 
-            {/* Car image pinned to bottom-left */}
+            {/* Car image — позиция настраивается в редакторе */}
             <img
               src={thanksCar}
               alt=""
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-none -scale-x-100 w-[var(--w-mobile)] md:w-[var(--w-desktop)]"
-              style={{ ['--w-mobile' as string]: `${thanksCarWMobile}%`, ['--w-desktop' as string]: `${thanksCarWDesktop}%` }}
+              className="absolute max-w-none w-[var(--w-mobile)] md:w-[var(--w-desktop)]"
+              style={{
+                ...carPosStyle(thanksCarPos),
+                ['--w-mobile' as string]: `${thanksCarWMobile}%`,
+                ['--w-desktop' as string]: `${thanksCarWDesktop}%`,
+              }}
             />
           </div>
         </div>
@@ -409,16 +427,19 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
             <span className="h-7 w-[37px] rounded-full border border-white inline-flex items-center justify-center text-sm">→</span>
           </button>
 
-          {/* Car image — large, overflows horizontally, pinned to bottom */}
-          <div className="mt-auto w-full overflow-hidden">
-            <img
-              src={introCar}
-              alt=""
-              className="max-w-none mx-auto -scale-x-100 w-[var(--w-mobile)] md:w-[var(--w-desktop)]"
-              style={{ ['--w-mobile' as string]: `${introCarWMobile}%`, ['--w-desktop' as string]: `${introCarWDesktop}%` }}
-            />
-          </div>
         </div>
+
+        {/* Car image — позиция настраивается в редакторе */}
+        <img
+          src={introCar}
+          alt=""
+          className="absolute z-[2] pointer-events-none max-w-none w-[var(--w-mobile)] md:w-[var(--w-desktop)]"
+          style={{
+            ...carPosStyle(introCarPos),
+            ['--w-mobile' as string]: `${introCarWMobile}%`,
+            ['--w-desktop' as string]: `${introCarWDesktop}%`,
+          }}
+        />
       </div>
     )
   }

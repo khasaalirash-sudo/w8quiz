@@ -762,11 +762,37 @@ function getAnchorTransform(anchor: NonNullable<Quiz['settings']['designImageAnc
   }
 }
 
+type CarPosition = NonNullable<Quiz['settings']['startCarPosition']>
+
+function carPosStyle(pos: CarPosition): React.CSSProperties {
+  switch (pos) {
+    case 'bottom-center': return { left: '50%', bottom: 0, transform: 'translateX(-50%) scaleX(-1)' }
+    case 'center':        return { left: '50%', top: '50%', transform: 'translate(-50%, -50%) scaleX(-1)' }
+    case 'middle-left':   return { left: 0, top: '50%', transform: 'translateY(-50%) scaleX(-1)' }
+    case 'middle-right':  return { right: 0, top: '50%', transform: 'translateY(-50%) scaleX(-1)' }
+    case 'top-right':     return { right: 0, top: 0, transform: 'scaleX(-1)' }
+  }
+}
+
 function DesignPreview() {
   const updateSettings = useEditorStore((s) => s.updateSettings)
+  const settings = useEditorStore((s) => s.quiz?.settings)
   const [slide, setSlide] = useState<'start' | 'final'>('start')
 
+  const current = slide === 'start'
+    ? (settings?.startCarPosition ?? 'bottom-center')
+    : (settings?.finalCarPosition ?? 'bottom-center')
+
+  const setPos = (pos: CarPosition) => {
+    if (slide === 'start') updateSettings({ startCarPosition: pos })
+    else updateSettings({ finalCarPosition: pos })
+  }
+
   const posBtnBase = 'px-3 py-2 text-xs font-medium rounded-lg border-2 transition-all flex items-center gap-1.5 shadow-sm'
+  const posBtn = (pos: CarPosition) =>
+    current === pos
+      ? `${posBtnBase} border-accent-500 bg-accent-50 text-accent-700`
+      : `${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`
 
   return (
     <div className="w-full min-w-0 max-w-[1200px] flex flex-col items-center gap-4">
@@ -794,37 +820,22 @@ function DesignPreview() {
 
       <div className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 shadow-sm flex flex-wrap items-center gap-2 justify-between">
         <div className="text-xs text-neutral-500">
-          Позиция декора:
+          Позиция «изображения поверх»:
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => updateSettings({ designImageAnchor: 'bottom-center', designImageX: 50, designImageY: 92 })}
-            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
-          >
+          <button onClick={() => setPos('bottom-center')} className={posBtn('bottom-center')}>
             <span className="text-base">⬇</span> Снизу
           </button>
-          <button
-            onClick={() => updateSettings({ designImageAnchor: 'center', designImageX: 50, designImageY: 50 })}
-            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
-          >
+          <button onClick={() => setPos('center')} className={posBtn('center')}>
             <span className="text-base">●</span> Центр
           </button>
-          <button
-            onClick={() => updateSettings({ designImageAnchor: 'middle-left', designImageX: 4, designImageY: 50 })}
-            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
-          >
+          <button onClick={() => setPos('middle-left')} className={posBtn('middle-left')}>
             <span className="text-base">⬅</span> Слева
           </button>
-          <button
-            onClick={() => updateSettings({ designImageAnchor: 'middle-right', designImageX: 96, designImageY: 50 })}
-            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
-          >
+          <button onClick={() => setPos('middle-right')} className={posBtn('middle-right')}>
             <span className="text-base">➡</span> Справа
           </button>
-          <button
-            onClick={() => updateSettings({ designImageAnchor: 'top-right', designImageX: 96, designImageY: 6 })}
-            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
-          >
+          <button onClick={() => setPos('top-right')} className={posBtn('top-right')}>
             <span className="text-base">↗</span> Сверху справа
           </button>
         </div>
@@ -869,6 +880,7 @@ function DesignDevicePreview({ viewport, slide = 'start' }: { viewport: DesignVi
     : viewport === 'tablet'
       ? (isFinal ? settings?.finalCarWidthTablet : settings?.startCarWidthTablet) ?? 72
       : (isFinal ? settings?.finalCarWidthMobile : settings?.startCarWidthMobile) ?? 72
+  const carPos = (isFinal ? settings?.finalCarPosition : settings?.startCarPosition) ?? 'bottom-center'
 
   const title = isFinal
     ? (settings?.finalTitle || 'Спасибо!')
@@ -954,8 +966,8 @@ function DesignDevicePreview({ viewport, slide = 'start' }: { viewport: DesignVi
           <img
             src={car}
             alt=""
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-none -scale-x-100"
-            style={{ width: `${carWidthPct}%` }}
+            className="absolute max-w-none"
+            style={{ ...carPosStyle(carPos), width: `${carWidthPct}%` }}
           />
 
           {imageUrl && (

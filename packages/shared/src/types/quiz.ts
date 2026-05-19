@@ -54,6 +54,8 @@ export interface QuizSettings {
   startCarWidthDesktop?: number
   startCarWidthTablet?: number
   startCarWidthMobile?: number
+  /** Позиция авто-изображения */
+  startCarPosition?: 'bottom-center' | 'center' | 'middle-left' | 'middle-right' | 'top-right'
 
   /** Заголовок финального экрана */
   finalTitle?: string
@@ -72,6 +74,7 @@ export interface QuizSettings {
   finalCarWidthDesktop?: number
   finalCarWidthTablet?: number
   finalCarWidthMobile?: number
+  finalCarPosition?: 'bottom-center' | 'center' | 'middle-left' | 'middle-right' | 'top-right'
 
   /** Дополнительное изображение #1 (декор/бренд-элемент) */
   designImageUrl?: string
