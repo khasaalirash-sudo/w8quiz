@@ -50,6 +50,10 @@ export interface QuizSettings {
   startBackgroundGradient?: string
   /** Изображение авто на стартовом экране */
   startCarImageUrl?: string
+  /** Ширина авто-изображения (% от ширины кадра) на разных брейкпоинтах */
+  startCarWidthDesktop?: number
+  startCarWidthTablet?: number
+  startCarWidthMobile?: number
 
   /** Заголовок финального экрана */
   finalTitle?: string
@@ -65,6 +69,9 @@ export interface QuizSettings {
   finalBackgroundGradient?: string
   /** Изображение авто на финальном экране */
   finalCarImageUrl?: string
+  finalCarWidthDesktop?: number
+  finalCarWidthTablet?: number
+  finalCarWidthMobile?: number
 
   /** Дополнительное изображение #1 (декор/бренд-элемент) */
   designImageUrl?: string

@@ -68,6 +68,10 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
   const thanksBgGradient = (quiz.settings.finalBackgroundGradient ?? '').trim()
   const thanksBg = quiz.settings.finalBackgroundUrl || DEFAULT_THANKS_BG
   const thanksCar = quiz.settings.finalCarImageUrl || DEFAULT_THANKS_CAR
+  const thanksCarWDesktop = quiz.settings.finalCarWidthDesktop ?? 60
+  const thanksCarWMobile = quiz.settings.finalCarWidthMobile ?? 90
+  const introCarWDesktop = quiz.settings.startCarWidthDesktop ?? 72
+  const introCarWMobile = quiz.settings.startCarWidthMobile ?? 90
   const thanksTitle = quiz.settings.finalTitle || 'Спасибо!'
   const thanksPrimaryText = quiz.settings.finalPrimaryText || 'На основе ваших ответов мы уже подбираем для вас самые лучшие варианты авто из США.'
   const thanksSecondaryText = quiz.settings.finalSecondaryText || 'Наш эксперт свяжется с вами в течение рабочего дня и покажет реальные автомобили с аукционов, соответствующих вашему бюджету.'
@@ -347,7 +351,8 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
             <img
               src={thanksCar}
               alt=""
-              className="absolute bottom-0 left-0 w-[420px] md:w-[734px] max-w-none -scale-x-100"
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-none -scale-x-100 w-[var(--w-mobile)] md:w-[var(--w-desktop)]"
+              style={{ ['--w-mobile' as string]: `${thanksCarWMobile}%`, ['--w-desktop' as string]: `${thanksCarWDesktop}%` }}
             />
           </div>
         </div>
@@ -409,7 +414,8 @@ export function QuizPlayer({ data }: QuizPlayerProps) {
             <img
               src={introCar}
               alt=""
-              className="w-[900px] md:w-[1525px] max-w-none mx-auto -scale-x-100"
+              className="max-w-none mx-auto -scale-x-100 w-[var(--w-mobile)] md:w-[var(--w-desktop)]"
+              style={{ ['--w-mobile' as string]: `${introCarWMobile}%`, ['--w-desktop' as string]: `${introCarWDesktop}%` }}
             />
           </div>
         </div>

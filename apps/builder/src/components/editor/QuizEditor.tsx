@@ -191,12 +191,24 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
                 />
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <label className="text-xs text-neutral-500 mb-1.5 block">Изображение поверх (например, авто)</label>
                 <ImageDropField
                   value={store.quiz?.settings.startCarImageUrl ?? ''}
                   onChange={(url) => store.updateSettings({ startCarImageUrl: url })}
                 />
+                {(store.quiz?.settings.startCarImageUrl ?? '').trim() && (
+                  <ResponsiveWidth
+                    desktop={store.quiz?.settings.startCarWidthDesktop}
+                    tablet={store.quiz?.settings.startCarWidthTablet}
+                    mobile={store.quiz?.settings.startCarWidthMobile}
+                    onChange={(n) => store.updateSettings({
+                      ...(n.desktop !== undefined && { startCarWidthDesktop: n.desktop }),
+                      ...(n.tablet !== undefined && { startCarWidthTablet: n.tablet }),
+                      ...(n.mobile !== undefined && { startCarWidthMobile: n.mobile }),
+                    })}
+                  />
+                )}
               </div>
             </div>
 
@@ -292,12 +304,24 @@ export function QuizEditor({ quiz, questions, options, logicRules }: QuizEditorP
                 />
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <label className="text-xs text-neutral-500 mb-1.5 block">Изображение поверх (например, авто)</label>
                 <ImageDropField
                   value={store.quiz?.settings.finalCarImageUrl ?? ''}
                   onChange={(url) => store.updateSettings({ finalCarImageUrl: url })}
                 />
+                {(store.quiz?.settings.finalCarImageUrl ?? '').trim() && (
+                  <ResponsiveWidth
+                    desktop={store.quiz?.settings.finalCarWidthDesktop}
+                    tablet={store.quiz?.settings.finalCarWidthTablet}
+                    mobile={store.quiz?.settings.finalCarWidthMobile}
+                    onChange={(n) => store.updateSettings({
+                      ...(n.desktop !== undefined && { finalCarWidthDesktop: n.desktop }),
+                      ...(n.tablet !== undefined && { finalCarWidthTablet: n.tablet }),
+                      ...(n.mobile !== undefined && { finalCarWidthMobile: n.mobile }),
+                    })}
+                  />
+                )}
               </div>
 
               <div className="border-t border-neutral-100 pt-4 space-y-3">
@@ -740,45 +764,82 @@ function getAnchorTransform(anchor: NonNullable<Quiz['settings']['designImageAnc
 
 function DesignPreview() {
   const updateSettings = useEditorStore((s) => s.updateSettings)
+  const [slide, setSlide] = useState<'start' | 'final'>('start')
+
+  const posBtnBase = 'px-3 py-2 text-xs font-medium rounded-lg border-2 transition-all flex items-center gap-1.5 shadow-sm'
 
   return (
     <div className="w-full min-w-0 max-w-[1200px] flex flex-col items-center gap-4">
+      {/* Slide toggle */}
+      <div className="inline-flex rounded-xl border border-neutral-200 bg-white p-1 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setSlide('start')}
+          className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+            slide === 'start' ? 'bg-accent-500 text-white shadow-sm' : 'text-neutral-600 hover:text-neutral-900'
+          }`}
+        >
+          Первый слайд
+        </button>
+        <button
+          type="button"
+          onClick={() => setSlide('final')}
+          className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+            slide === 'final' ? 'bg-accent-500 text-white shadow-sm' : 'text-neutral-600 hover:text-neutral-900'
+          }`}
+        >
+          Последний слайд
+        </button>
+      </div>
+
       <div className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 shadow-sm flex flex-wrap items-center gap-2 justify-between">
         <div className="text-xs text-neutral-500">
-          Одновременно видно 3 версии: <span className="font-medium text-neutral-700">Web / Tablet / Mobile</span>
+          Позиция декора:
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => updateSettings({ designImageAnchor: 'bottom-center', designImageX: 50, designImageY: 92 })}
-            className="px-2.5 py-1 text-xs rounded-lg border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
           >
-            Позиция: снизу по центру
+            <span className="text-base">⬇</span> Снизу
           </button>
           <button
             onClick={() => updateSettings({ designImageAnchor: 'center', designImageX: 50, designImageY: 50 })}
-            className="px-2.5 py-1 text-xs rounded-lg border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
           >
-            Позиция: центр
+            <span className="text-base">●</span> Центр
+          </button>
+          <button
+            onClick={() => updateSettings({ designImageAnchor: 'middle-left', designImageX: 4, designImageY: 50 })}
+            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
+          >
+            <span className="text-base">⬅</span> Слева
+          </button>
+          <button
+            onClick={() => updateSettings({ designImageAnchor: 'middle-right', designImageX: 96, designImageY: 50 })}
+            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
+          >
+            <span className="text-base">➡</span> Справа
           </button>
           <button
             onClick={() => updateSettings({ designImageAnchor: 'top-right', designImageX: 96, designImageY: 6 })}
-            className="px-2.5 py-1 text-xs rounded-lg border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+            className={`${posBtnBase} border-neutral-300 bg-white text-neutral-700 hover:border-accent-400 hover:bg-accent-50 hover:text-accent-700`}
           >
-            Позиция: сверху справа
+            <span className="text-base">↗</span> Сверху справа
           </button>
         </div>
       </div>
 
       <div className="w-full min-w-0 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-        <DesignDevicePreview viewport="desktop" />
-        <DesignDevicePreview viewport="tablet" />
-        <DesignDevicePreview viewport="mobile" />
+        <DesignDevicePreview viewport="desktop" slide={slide} />
+        <DesignDevicePreview viewport="tablet" slide={slide} />
+        <DesignDevicePreview viewport="mobile" slide={slide} />
       </div>
     </div>
   )
 }
 
-function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
+function DesignDevicePreview({ viewport, slide = 'start' }: { viewport: DesignViewport; slide?: 'start' | 'final' }) {
   const settings = useEditorStore((s) => s.quiz?.settings)
   const updateSettings = useEditorStore((s) => s.updateSettings)
   const frameRef = useRef<HTMLDivElement>(null)
@@ -793,10 +854,31 @@ function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
     : viewport === 'tablet'
       ? (settings?.designImageWidthTablet ?? 240)
       : (settings?.designImageWidthMobile ?? 170)
-  const bgType = settings?.startBackgroundType ?? 'image'
-  const bgGradient = (settings?.startBackgroundGradient ?? '').trim()
-  const introBg = (settings?.startBackgroundUrl ?? '').trim() || DEFAULT_INTRO_BG
-  const introCar = (settings?.startCarImageUrl ?? '').trim() || DEFAULT_INTRO_CAR
+
+  const isFinal = slide === 'final'
+  const bgType = (isFinal ? settings?.finalBackgroundType : settings?.startBackgroundType) ?? 'image'
+  const bgGradient = ((isFinal ? settings?.finalBackgroundGradient : settings?.startBackgroundGradient) ?? '').trim()
+  const bgUrl = ((isFinal ? settings?.finalBackgroundUrl : settings?.startBackgroundUrl) ?? '').trim()
+  const defaultBg = isFinal ? '/default-thanks-bg.svg' : DEFAULT_INTRO_BG
+  const bgImage = bgUrl || defaultBg
+  const carUrl = ((isFinal ? settings?.finalCarImageUrl : settings?.startCarImageUrl) ?? '').trim()
+  const defaultCar = isFinal ? '/default-thanks-car.svg' : DEFAULT_INTRO_CAR
+  const car = carUrl || defaultCar
+  const carWidthPct = viewport === 'desktop'
+    ? (isFinal ? settings?.finalCarWidthDesktop : settings?.startCarWidthDesktop) ?? 72
+    : viewport === 'tablet'
+      ? (isFinal ? settings?.finalCarWidthTablet : settings?.startCarWidthTablet) ?? 72
+      : (isFinal ? settings?.finalCarWidthMobile : settings?.startCarWidthMobile) ?? 72
+
+  const title = isFinal
+    ? (settings?.finalTitle || 'Спасибо!')
+    : (settings?.headerTitle || 'Заголовок стартового экрана')
+  const subtitle = isFinal
+    ? (settings?.finalPrimaryText || 'На основе ваших ответов…')
+    : (settings?.headerSubtitle || 'Подзаголовок')
+  const buttonText = isFinal
+    ? (settings?.resultButtonText || 'Перейти в каталог')
+    : (settings?.startButtonText || 'Получить подборку')
 
   const box = viewport === 'desktop'
     ? { w: 360, h: 220 }
@@ -848,7 +930,7 @@ function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
             <div className="absolute inset-0" style={{ background: bgGradient }} />
           ) : (
             <>
-              <img src={introBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={bgImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/70" />
             </>
           )}
@@ -856,23 +938,24 @@ function DesignDevicePreview({ viewport }: { viewport: DesignViewport }) {
           <div className="absolute inset-0 z-10 flex flex-col items-center text-center px-6 pt-8">
             <W8LogoPreview />
             <h3 className="mt-6 text-white font-bold text-[34px] leading-[1.1] max-w-[620px]">
-              {settings?.headerTitle || 'Заголовок стартового экрана'}
+              {title}
             </h3>
             <p className="mt-4 text-white/95 text-base max-w-[520px]">
-              {settings?.headerSubtitle || 'Подзаголовок'}
+              {subtitle}
             </p>
             <button
               className="mt-6 inline-flex items-center gap-3 px-8 h-[52px] rounded-full text-white text-base font-semibold"
               style={{ backgroundColor: settings?.accentColor ?? '#d42e5b' }}
             >
-              {settings?.startButtonText || 'Получить подборку'}
+              {buttonText}
             </button>
           </div>
 
           <img
-            src={introCar}
+            src={car}
             alt=""
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[72%] max-w-none -scale-x-100"
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 max-w-none -scale-x-100"
+            style={{ width: `${carWidthPct}%` }}
           />
 
           {imageUrl && (
@@ -905,6 +988,43 @@ function W8LogoPreview() {
       height={55}
       className="select-none brightness-0 invert"
     />
+  )
+}
+
+// ─── Width controls for 3 breakpoints (%) ────────────
+
+function ResponsiveWidth({
+  label = 'Ширина (%)',
+  desktop, tablet, mobile,
+  defDesktop = 72, defTablet = 72, defMobile = 72,
+  onChange,
+}: {
+  label?: string
+  desktop?: number; tablet?: number; mobile?: number
+  defDesktop?: number; defTablet?: number; defMobile?: number
+  onChange: (next: { desktop?: number; tablet?: number; mobile?: number }) => void
+}) {
+  return (
+    <div>
+      <label className="text-xs text-neutral-500 mb-1.5 block">{label}</label>
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { k: 'desktop', val: desktop, def: defDesktop, label: 'Desktop' },
+          { k: 'tablet', val: tablet, def: defTablet, label: 'Tablet' },
+          { k: 'mobile', val: mobile, def: defMobile, label: 'Mobile' },
+        ].map(({ k, val, def, label }) => (
+          <div key={k}>
+            <label className="text-[10px] text-neutral-400 mb-0.5 block">{label}</label>
+            <input
+              type="number" min={5} max={100}
+              value={val ?? def}
+              onChange={(e) => onChange({ [k]: Math.min(100, Math.max(5, Number(e.target.value) || def)) })}
+              className="w-full px-2 py-1.5 text-sm border border-neutral-200 rounded-lg outline-none focus:border-accent-400"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
